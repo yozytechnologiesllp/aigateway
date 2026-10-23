@@ -2,6 +2,12 @@ import { act, fireEvent, screen, waitFor, within } from "@testing-library/react"
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "../../tests/test-utils";
 import Sidebar, { menuGroups, getBreadcrumb } from "./leftnav";
+import { DEFAULT_BRAND } from "@/lib/brand";
+
+const HOME_LINK_NAME = new RegExp(`${DEFAULT_BRAND.productName} home`, "i");
+
+// Role rules are tested on the full upstream menu. Product hiding is covered in CommandPalette/utils.test.ts
+vi.mock("@/lib/productConfig", () => ({ isRouteHidden: () => false }));
 
 vi.mock("../utils/roles", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../utils/roles")>();
@@ -154,13 +160,13 @@ describe("Sidebar (leftnav)", () => {
   it("should link the logo to the UI home route rather than the proxy origin", () => {
     renderWithProviders(<Sidebar {...defaultProps} />);
 
-    expect(screen.getByRole("link", { name: /litellm home/i })).toHaveAttribute("href", "/ui");
+    expect(screen.getByRole("link", { name: HOME_LINK_NAME })).toHaveAttribute("href", "/ui");
   });
 
   it("pairs the logo with a dark-mode variant that swaps on the dark class", () => {
     renderWithProviders(<Sidebar {...defaultProps} />);
 
-    const [light, dark] = Array.from(screen.getByRole("link", { name: /litellm home/i }).querySelectorAll("img"));
+    const [light, dark] = Array.from(screen.getByRole("link", { name: HOME_LINK_NAME }).querySelectorAll("img"));
     const classesOf = (el: Element) => new Set(el.className.split(/\s+/));
 
     const lightSrc = light.getAttribute("src") ?? "";
@@ -173,9 +179,9 @@ describe("Sidebar (leftnav)", () => {
   });
 
   const collapsedLogos = () => {
-    const home = within(screen.getByRole("link", { name: /litellm home/i }));
+    const home = within(screen.getByRole("link", { name: HOME_LINK_NAME }));
     return {
-      light: home.getByRole("img", { name: "LiteLLM" }),
+      light: home.getByRole("img", { name: DEFAULT_BRAND.productName }),
       dark: home.getByRole("presentation", { hidden: true }),
     };
   };
@@ -211,7 +217,7 @@ describe("Sidebar (leftnav)", () => {
     });
     renderWithProviders(<Sidebar {...defaultProps} />);
 
-    const [light, dark] = Array.from(screen.getByRole("link", { name: /litellm home/i }).querySelectorAll("img"));
+    const [light, dark] = Array.from(screen.getByRole("link", { name: HOME_LINK_NAME }).querySelectorAll("img"));
 
     expect(light).toHaveAttribute("src", "https://cdn.example.com/logo.png");
     expect(dark).toHaveAttribute("src", "https://cdn.example.com/logo-dark.png");
@@ -221,7 +227,7 @@ describe("Sidebar (leftnav)", () => {
     mockUseThemeImpl = () => ({ ...unbrandedTheme(), logoUrl: "https://cdn.example.com/logo.png" });
     renderWithProviders(<Sidebar {...defaultProps} />);
 
-    const [light, dark] = Array.from(screen.getByRole("link", { name: /litellm home/i }).querySelectorAll("img"));
+    const [light, dark] = Array.from(screen.getByRole("link", { name: HOME_LINK_NAME }).querySelectorAll("img"));
 
     expect(light).toHaveAttribute("src", "https://cdn.example.com/logo.png");
     expect(dark).toHaveAttribute("src", "https://cdn.example.com/logo.png");
@@ -235,7 +241,7 @@ describe("Sidebar (leftnav)", () => {
     });
     renderWithProviders(<Sidebar {...defaultProps} />);
 
-    const [, dark] = Array.from(screen.getByRole("link", { name: /litellm home/i }).querySelectorAll("img"));
+    const [, dark] = Array.from(screen.getByRole("link", { name: HOME_LINK_NAME }).querySelectorAll("img"));
     expect(dark).toHaveAttribute("src", "https://cdn.example.com/gone.png");
 
     fireEvent.error(dark);

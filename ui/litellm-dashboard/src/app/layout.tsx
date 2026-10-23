@@ -9,12 +9,14 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import ReactQueryProvider from "@/contexts/ReactQueryProvider";
 import HotkeysProvider from "@/contexts/HotkeysProvider";
 import { Toaster } from "@/components/ui/sonner";
+import { BrandHead } from "@/components/BrandHead";
+import { DEFAULT_BRAND } from "@/lib/brand";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "LiteLLM Dashboard",
-  description: "LiteLLM Proxy Admin UI",
+  title: DEFAULT_BRAND.productName,
+  description: `${DEFAULT_BRAND.productName} admin console`,
   icons: { icon: "/get_favicon" },
 };
 
@@ -31,6 +33,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <NuqsAdapter>
             <ReactQueryProvider>
+              <BrandHead />
               <HotkeysProvider>
                 <AuthProvider>{children}</AuthProvider>
               </HotkeysProvider>

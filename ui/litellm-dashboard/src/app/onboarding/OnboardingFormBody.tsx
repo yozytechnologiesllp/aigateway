@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { UiLoadingSpinner } from "@/components/ui/ui-loading-spinner";
 import { cn } from "@/lib/cva.config";
 import { useZodForm } from "@/lib/forms/useZodForm";
+import { useBrand } from "@/hooks/useBrand";
 
 type OnboardingFormBodyProps = {
   variant: "signup" | "reset_password";
@@ -28,6 +29,7 @@ type OnboardingFormValues = z.infer<typeof onboardingSchema>;
 
 export function OnboardingFormBody({ variant, userEmail, isPending, claimError, onSubmit }: OnboardingFormBodyProps) {
   const form = useZodForm(onboardingSchema, { defaultValues: { password: "" } });
+  const { productName } = useBrand();
   const emailFieldId = React.useId();
   const isResetPassword = variant === "reset_password";
   const actionLabel = isResetPassword ? "Reset Password" : "Sign Up";
@@ -38,7 +40,7 @@ export function OnboardingFormBody({ variant, userEmail, isPending, claimError, 
     <div className="mx-auto w-full max-w-md mt-10">
       <Card>
         <CardContent>
-          <h5 className="text-center mb-5 text-base font-semibold text-foreground">🚅 LiteLLM</h5>
+          <h5 className="text-center mb-5 text-base font-semibold text-foreground">{productName}</h5>
           <h3 className="text-2xl font-semibold text-foreground">{actionLabel}</h3>
           <p className="text-sm text-foreground">
             {isResetPassword

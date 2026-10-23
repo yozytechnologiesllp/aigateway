@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { renderWithProviders } from "../../../tests/test-utils";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { OnboardingFormBody } from "./OnboardingFormBody";
@@ -18,7 +19,7 @@ describe("OnboardingFormBody submit payload", () => {
   it("sends exactly {password} and never leaks the email field", async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
-    render(<OnboardingFormBody {...defaultProps} onSubmit={onSubmit} />);
+    renderWithProviders(<OnboardingFormBody {...defaultProps} onSubmit={onSubmit} />);
 
     fireEvent.change(screen.getByLabelText("Password"), { target: { value: "hunter2" } });
     await user.click(screen.getByRole("button", { name: "Sign Up" }));
@@ -30,7 +31,7 @@ describe("OnboardingFormBody submit payload", () => {
   it("submits on Enter from the password field", async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
-    render(<OnboardingFormBody {...defaultProps} onSubmit={onSubmit} />);
+    renderWithProviders(<OnboardingFormBody {...defaultProps} onSubmit={onSubmit} />);
 
     await user.type(screen.getByLabelText("Password"), "hunter2{Enter}");
 
@@ -41,7 +42,7 @@ describe("OnboardingFormBody submit payload", () => {
   it("blocks submit and marks the password invalid when it is empty", async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
-    render(<OnboardingFormBody {...defaultProps} onSubmit={onSubmit} />);
+    renderWithProviders(<OnboardingFormBody {...defaultProps} onSubmit={onSubmit} />);
 
     await user.click(screen.getByRole("button", { name: "Sign Up" }));
 
@@ -51,11 +52,11 @@ describe("OnboardingFormBody submit payload", () => {
   });
 
   it("keeps the password help text always visible and variant specific", async () => {
-    const { unmount } = render(<OnboardingFormBody {...defaultProps} onSubmit={vi.fn()} />);
+    const { unmount } = renderWithProviders(<OnboardingFormBody {...defaultProps} onSubmit={vi.fn()} />);
     expect(screen.getByText("Create a password for your account")).toBeInTheDocument();
     unmount();
 
-    render(<OnboardingFormBody {...defaultProps} variant="reset_password" onSubmit={vi.fn()} />);
+    renderWithProviders(<OnboardingFormBody {...defaultProps} variant="reset_password" onSubmit={vi.fn()} />);
     expect(screen.getByText("Enter your new password")).toBeInTheDocument();
   });
 });
