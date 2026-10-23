@@ -11,6 +11,7 @@ import { PluginModeProvider } from "@/contexts/PluginModeContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { isProxyAdminRole } from "@/utils/roles";
 import { uiHref } from "@/utils/uiHref";
+import { isRouteHidden } from "@/lib/productConfig";
 
 function MoyaiPageContent() {
   const { accessToken, userRole } = useAuthorized();
@@ -90,7 +91,15 @@ function MoyaiPageContent() {
   );
 }
 
+function HiddenMoyaiRedirect() {
+  useEffect(() => {
+    window.location.replace(uiHref(""));
+  }, []);
+  return null;
+}
+
 export default function MoyaiPage() {
+  if (isRouteHidden("moyai")) return <HiddenMoyaiRedirect />;
   return (
     <Suspense>
       <MoyaiPageContent />

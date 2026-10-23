@@ -11,6 +11,7 @@ const HIDDEN_ROUTES: ReadonlySet<string> = new Set([
   "transform-request",
   "tag-management",
   "learning-resources",
+  "moyai",
 ]);
 
 export const SHOW_UPSTREAM_LINKS = false;

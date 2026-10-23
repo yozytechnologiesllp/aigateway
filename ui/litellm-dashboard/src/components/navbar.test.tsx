@@ -3,6 +3,14 @@ import React from "react";
 import { describe, expect, it, vi } from "vitest";
 import { renderWithProviders, screen, waitFor } from "../../tests/test-utils";
 import Navbar from "./navbar";
+import { DEFAULT_BRAND } from "@/lib/brand";
+
+const BRAND_NAME = new RegExp(DEFAULT_BRAND.productName, "i");
+
+vi.mock("@/lib/productConfig", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/productConfig")>()),
+  SHOW_UPSTREAM_LINKS: true,
+}));
 
 // Mock the hooks and utilities
 vi.mock("@/components/networking", () => ({
@@ -152,13 +160,13 @@ describe("Navbar", () => {
   it("should link the logo to the UI home route rather than the proxy origin", () => {
     renderWithProviders(<Navbar {...defaultProps} />);
 
-    expect(screen.getByRole("link", { name: /litellm brand/i })).toHaveAttribute("href", "/ui");
+    expect(screen.getByRole("link", { name: BRAND_NAME })).toHaveAttribute("href", "/ui");
   });
 
   it("pairs the logo with a dark-mode variant that swaps on the dark class", () => {
     renderWithProviders(<Navbar {...defaultProps} />);
 
-    const [light, dark] = Array.from(screen.getByRole("link", { name: /litellm brand/i }).querySelectorAll("img"));
+    const [light, dark] = Array.from(screen.getByRole("link", { name: BRAND_NAME }).querySelectorAll("img"));
     const classesOf = (el: Element) => new Set(el.className.split(/\s+/));
 
     const lightSrc = light.getAttribute("src") ?? "";
@@ -223,12 +231,13 @@ describe("Navbar", () => {
     mockUserDropdownData.current = originalCurrent;
   });
 
-  it("should show version badge when health data contains version", () => {
-    mockUseHealthReadinessDetailsImpl = () => ({ data: { litellm_version: "1.0.0" } });
+  it("shows the product version rather than the upstream engine version", () => {
+    mockUseHealthReadinessDetailsImpl = () => ({ data: { litellm_version: "9.9.9" } });
 
     renderWithProviders(<Navbar {...defaultProps} />);
 
-    expect(screen.getByText("v1.0.0")).toBeInTheDocument();
+    expect(screen.getByText(`v${DEFAULT_BRAND.version}`)).toBeInTheDocument();
+    expect(screen.queryByText("v9.9.9")).not.toBeInTheDocument();
 
     // Reset mock
     mockUseHealthReadinessDetailsImpl = () => ({ data: null });
@@ -255,7 +264,7 @@ describe("Navbar", () => {
 
     renderWithProviders(<Navbar {...defaultProps} />);
 
-    const logoImg = screen.getByAltText("LiteLLM Brand");
+    const logoImg = screen.getByAltText(DEFAULT_BRAND.productName);
     expect(logoImg).toHaveAttribute("src", "https://example.com/custom-logo.png");
 
     // Reset mock

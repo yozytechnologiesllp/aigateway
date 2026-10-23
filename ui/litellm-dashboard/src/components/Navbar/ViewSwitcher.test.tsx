@@ -33,6 +33,9 @@ vi.mock("next/navigation", () => ({ usePathname: mockUsePathname }));
 // Deterministic hrefs so navigation assertions don't depend on server_root_path.
 vi.mock("@/utils/uiHref", () => ({ uiHref: (seg: string) => `/ui/${seg}` }));
 
+const productRoutes = vi.hoisted(() => ({ hidden: new Set<string>() }));
+vi.mock("@/lib/productConfig", () => ({ isRouteHidden: (route: string) => productRoutes.hidden.has(route) }));
+
 describe("ViewSwitcher", () => {
   let assignSpy: ReturnType<typeof vi.fn>;
 
@@ -137,6 +140,21 @@ describe("ViewSwitcher", () => {
     });
     expect(state.setMode).toHaveBeenCalledWith("ai-gateway");
     expect(assignSpy).toHaveBeenCalledWith("/ui/");
+  });
+
+  it("leaves Moyai out of the menu when the product hides that route", async () => {
+    productRoutes.hidden = new Set(["moyai"]);
+    try {
+      render(<ViewSwitcher />);
+
+      act(() => {
+        fireEvent.click(screen.getByRole("button"));
+      });
+      expect(await screen.findByText("Chat")).toBeInTheDocument();
+      expect(screen.queryByText("Moyai")).not.toBeInTheDocument();
+    } finally {
+      productRoutes.hidden = new Set();
+    }
   });
 
   it("shows the Moyai entry with its description regardless of enable_chat_ui", async () => {

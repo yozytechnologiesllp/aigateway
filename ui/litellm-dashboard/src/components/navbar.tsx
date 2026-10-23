@@ -1,10 +1,11 @@
-import { useHealthReadinessDetails } from "@/app/(dashboard)/hooks/healthReadiness/useHealthReadinessDetails";
 import { useDisableBouncingIcon } from "@/app/(dashboard)/hooks/useDisableBouncingIcon";
 import { useDisableShowPrompts } from "@/app/(dashboard)/hooks/useDisableShowPrompts";
 import { useWorker } from "@/hooks/useWorker";
 import { getProxyBaseUrl } from "@/components/networking";
 import { uiHref } from "@/utils/uiHref";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useBrand } from "@/hooks/useBrand";
+import { SHOW_UPSTREAM_LINKS } from "@/lib/productConfig";
 import { revokeSessionAndClearClientState, useLogout } from "@/app/(dashboard)/hooks/useLogout";
 import { getLoginUrl } from "@/utils/returnUrlUtils";
 import { Badge } from "@/components/ui/badge";
@@ -40,15 +41,15 @@ const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const baseUrl = getProxyBaseUrl();
   const { logoUrl } = useTheme();
-  const { data: healthData } = useHealthReadinessDetails(accessToken);
-  const version = healthData?.litellm_version;
+  const brand = useBrand();
+  const version = brand.version;
   const disableBouncingIcon = useDisableBouncingIcon();
-  const hideCommunityLinks = useDisableShowPrompts();
+  const hideCommunityLinks = useDisableShowPrompts() || !SHOW_UPSTREAM_LINKS;
   const { isControlPlane, selectedWorker } = useWorker();
   const showWorkerSwitch = isControlPlane && selectedWorker !== null;
 
-  const imageUrl = logoUrl || `${baseUrl}/get_image`;
-  const darkImageUrl = logoUrl || `${baseUrl}/get_image?theme=dark`;
+  const imageUrl = logoUrl || brand.logoUrl || `${baseUrl}/get_image`;
+  const darkImageUrl = logoUrl || brand.logoUrlDark || brand.logoUrl || `${baseUrl}/get_image?theme=dark`;
 
   const handleLogout = useLogout(accessToken);
 
@@ -83,7 +84,7 @@ const Navbar: React.FC<NavbarProps> = ({
               <Link href={uiHref("")} className="flex items-center">
                 <div className="relative">
                   <div className="flex h-10 max-w-48 items-center justify-center overflow-hidden">
-                    <img src={imageUrl} alt="LiteLLM Brand" className={cn(NAV_LOGO_CLASS_NAME, "dark:hidden")} />
+                    <img src={imageUrl} alt={brand.productName} className={cn(NAV_LOGO_CLASS_NAME, "dark:hidden")} />
                     <img
                       src={darkImageUrl}
                       alt=""
@@ -99,20 +100,13 @@ const Navbar: React.FC<NavbarProps> = ({
                     <span
                       className="absolute -left-2 -top-1 animate-bounce text-lg"
                       style={{ animationDuration: "2s" }}
-                      title="Thanks for using LiteLLM!"
+                      title={`Thanks for using ${brand.productName}!`}
                     >
                       🌑
                     </span>
                   )}
-                  <Badge variant="outline" className="relative z-raised cursor-pointer text-xs font-medium">
-                    <a
-                      href="https://docs.litellm.ai/release_notes"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="shrink-0"
-                    >
-                      v{version}
-                    </a>
+                  <Badge variant="outline" className="relative z-raised text-xs font-medium">
+                    v{version}
                   </Badge>
                 </div>
               )}
@@ -132,13 +126,15 @@ const Navbar: React.FC<NavbarProps> = ({
               </div>
             )}
 
-            <nav
-              aria-label="Product documentation"
-              className={`flex min-w-0 items-center gap-2 ${showWorkerSwitch ? "border-l border-border pl-4" : ""}`}
-            >
-              <DocsLink />
-              <BlogDropdown />
-            </nav>
+            {SHOW_UPSTREAM_LINKS && (
+              <nav
+                aria-label="Product documentation"
+                className={`flex min-w-0 items-center gap-2 ${showWorkerSwitch ? "border-l border-border pl-4" : ""}`}
+              >
+                <DocsLink />
+                <BlogDropdown />
+              </nav>
+            )}
 
             {!hideCommunityLinks && (
               <div className="flex shrink-0 items-center border-l border-border pl-4">

@@ -10,6 +10,7 @@ import { Check, ChevronsUpDown, LayoutGrid } from "lucide-react";
 import { usePluginMode } from "@/contexts/PluginModeContext";
 import { useUISettings } from "@/app/(dashboard)/hooks/uiSettings/useUISettings";
 import { uiHref } from "@/utils/uiHref";
+import { isRouteHidden } from "@/lib/productConfig";
 import moyaiHead from "../../../public/assets/moyai/moyai-head.svg";
 
 const GATEWAY = "ai-gateway";
@@ -112,7 +113,7 @@ export default function ViewSwitcher() {
       onClick: () => window.location.assign(moyaiUrl ?? uiHref(MOYAI)),
     },
     chatItem,
-  ];
+  ].filter((item) => !isRouteHidden(item.key));
 
   return (
     <DropdownMenu>
