@@ -11,10 +11,19 @@ import BetaBadge from "@/components/BetaBadge";
 import useAuthorized from "@/app/(dashboard)/hooks/useAuthorized";
 import { fetchProxySettings } from "@/utils/proxyUtils";
 import { useUrlTab } from "@/hooks/useUrlTab";
+import { isTabHidden, withoutHiddenTabs } from "@/lib/productConfig";
 import { Page, PageTabs, PageTabsContent, PageTabsList, PageTabsTrigger } from "@/components/shared/Page";
 import { PageHeader, PageHeaderDescription, PageHeaderTitle } from "@/components/shared/PageHeader";
 
-const PLAYGROUND_TABS = ["chat", "compare", "compliance", "system-one", "agent-builder"] as const;
+const SHOW_DECISIONS_TAB = !isTabHidden("playground", "system-one");
+
+const PLAYGROUND_TABS = withoutHiddenTabs("playground", [
+  "chat",
+  "compare",
+  "compliance",
+  "system-one",
+  "agent-builder",
+] as const);
 
 const TAB_TRIGGER = "h-full group-data-horizontal/tabs:after:-bottom-0.5";
 
@@ -72,9 +81,11 @@ export default function PlaygroundPage() {
           <PageTabsTrigger value="compliance" className={TAB_TRIGGER}>
             Compliance
           </PageTabsTrigger>
-          <PageTabsTrigger value="system-one" className={TAB_TRIGGER}>
-            <BetaBadge>Decisions</BetaBadge>
-          </PageTabsTrigger>
+          {SHOW_DECISIONS_TAB && (
+            <PageTabsTrigger value="system-one" className={TAB_TRIGGER}>
+              <BetaBadge>Decisions</BetaBadge>
+            </PageTabsTrigger>
+          )}
           <PageTabsTrigger value="agent-builder" className={TAB_TRIGGER}>
             Agent builder
           </PageTabsTrigger>
@@ -92,9 +103,11 @@ export default function PlaygroundPage() {
         <PageTabsContent value="compliance" className="overflow-y-auto pt-4 data-hidden:hidden" keepMounted>
           <ComplianceUI accessToken={accessToken} disabledPersonalKeyCreation={disabledPersonalKeyCreation} />
         </PageTabsContent>
-        <PageTabsContent value="system-one" className="overflow-y-auto pt-4 data-hidden:hidden" keepMounted>
-          <SystemOneUI accessToken={accessToken} disabledPersonalKeyCreation={disabledPersonalKeyCreation} />
-        </PageTabsContent>
+        {SHOW_DECISIONS_TAB && (
+          <PageTabsContent value="system-one" className="overflow-y-auto pt-4 data-hidden:hidden" keepMounted>
+            <SystemOneUI accessToken={accessToken} disabledPersonalKeyCreation={disabledPersonalKeyCreation} />
+          </PageTabsContent>
+        )}
         <PageTabsContent value="agent-builder" className="overflow-y-auto pt-4 data-hidden:hidden" keepMounted>
           <AgentBuilderView
             accessToken={accessToken}

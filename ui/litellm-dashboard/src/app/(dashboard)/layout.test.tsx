@@ -211,6 +211,24 @@ describe("(dashboard) Layout", () => {
     expect(screen.queryByTestId("loading-screen")).not.toBeInTheDocument();
   });
 
+  it("sends a deep link to a product-hidden page back to home without mounting that page", async () => {
+    vi.mocked(usePathname).mockReturnValue("/ui/lens");
+
+    render(
+      <AuthProvider>
+        <Layout>
+          <div data-testid="page-content" />
+        </Layout>
+      </AuthProvider>,
+    );
+
+    pendingUiConfig.resolve();
+
+    await waitFor(() => expect(replaceMock).toHaveBeenCalledWith(expect.stringMatching(/\/home$/)));
+    expect(screen.getByTestId("dashboard-header")).toBeInTheDocument();
+    expect(screen.queryByTestId("page-content")).not.toBeInTheDocument();
+  });
+
   it("redirects an invitation link to the onboarding route instead of rendering the dashboard shell", async () => {
     searchParamsValue = new URLSearchParams("invitation_id=abc123");
 

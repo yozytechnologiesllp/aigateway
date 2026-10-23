@@ -22,6 +22,7 @@ import { DeploymentHealthPanel } from "@/components/DeploymentHealth/DeploymentH
 import { UserBanner } from "@/components/UserBanner";
 import { LiteAdminFrame } from "@/components/liteadmin/LiteAdmin";
 import { routeSegmentForPathname, uiHref } from "@/utils/uiHref";
+import { isRouteHidden } from "@/lib/productConfig";
 import { PluginModeProvider, usePluginMode } from "@/contexts/PluginModeContext";
 import { createApiClient } from "@/lib/http/client";
 import { getProxyBaseUrl } from "@/components/networking";
@@ -118,10 +119,15 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
   const { accessToken } = useAuth();
   const { mode } = usePluginMode();
   const pathname = usePathname();
+  const router = useRouter();
   const routeSegment = routeSegmentForPathname(pathname);
+  const routeHidden = isRouteHidden(routeSegment);
   useEffect(() => {
     void recordUiEvent({ page: routeSegment || "home", action: "view" });
   }, [routeSegment]);
+  useEffect(() => {
+    if (routeHidden) router.replace(uiHref("home"));
+  }, [routeHidden, router]);
   const searchParams = useSearchParams();
   const navigationKey = `${pathname}?${searchParams.toString()}`;
   const isDesktop = useMediaQuery("(min-width: 768px)", { initializeWithValue: false });
@@ -209,7 +215,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
             <UserBanner accessToken={accessToken} />
             <main className="min-h-0 min-w-0 flex-1 overflow-y-auto">
               <TelemetryEnvBanner />
-              {children}
+              {routeHidden ? null : children}
             </main>
           </div>
         </CommandPaletteProvider>

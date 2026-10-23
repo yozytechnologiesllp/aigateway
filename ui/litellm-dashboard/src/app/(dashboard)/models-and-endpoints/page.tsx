@@ -8,6 +8,7 @@ import useAuthorized from "@/app/(dashboard)/hooks/useAuthorized";
 import { useTeams } from "@/app/(dashboard)/hooks/teams/useTeams";
 import { useUISettings } from "@/app/(dashboard)/hooks/uiSettings/useUISettings";
 import { useUrlTab } from "@/hooks/useUrlTab";
+import { withoutHiddenTabs } from "@/lib/productConfig";
 import { all_admin_roles, internalUserRoles } from "@/utils/roles";
 import { autoRouterCreationScope, canCreateModels } from "@/utils/modelPermissions";
 import BetaBadge from "@/components/BetaBadge";
@@ -117,20 +118,21 @@ export default function ModelsAndEndpointsPage() {
     ) !== "forbidden";
 
   const visibleSlugs = useMemo<Array<"" | ModelTabSlug>>(
-    () => [
-      "",
-      ...(canCreate ? (["add"] as const) : []),
-      ...(isAdmin || canViewAutoRouters ? (["auto-routers"] as const) : []),
-      // effectiveSessionRole reports proxy_admin_viewer as "Admin", so isAdmin alone would show a
-      // viewer these write-only panels; only the raw-role isViewOnly separates them. Health Status
-      // stays: it is the bucket's one read view, and viewers keep read parity with admins.
-      ...(!isViewOnly && (isAdmin || isInternalUser) ? (["llm-credentials"] as const) : []),
-      ...(isAdmin && !isViewOnly ? (["pass-through"] as const) : []),
-      ...(isAdmin ? (["health"] as const) : []),
-      ...(isAdmin && !isViewOnly
-        ? (["retry-settings", "model-group-alias", "access-group-budgets", "price-data"] as const)
-        : []),
-    ],
+    () =>
+      withoutHiddenTabs<"" | ModelTabSlug>("models-and-endpoints", [
+        "",
+        ...(canCreate ? (["add"] as const) : []),
+        ...(isAdmin || canViewAutoRouters ? (["auto-routers"] as const) : []),
+        // effectiveSessionRole reports proxy_admin_viewer as "Admin", so isAdmin alone would show a
+        // viewer these write-only panels; only the raw-role isViewOnly separates them. Health Status
+        // stays: it is the bucket's one read view, and viewers keep read parity with admins.
+        ...(!isViewOnly && (isAdmin || isInternalUser) ? (["llm-credentials"] as const) : []),
+        ...(isAdmin && !isViewOnly ? (["pass-through"] as const) : []),
+        ...(isAdmin ? (["health"] as const) : []),
+        ...(isAdmin && !isViewOnly
+          ? (["retry-settings", "model-group-alias", "access-group-budgets", "price-data"] as const)
+          : []),
+      ]),
     [canCreate, canViewAutoRouters, isAdmin, isInternalUser, isViewOnly],
   );
 

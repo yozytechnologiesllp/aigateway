@@ -69,6 +69,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/cva.config";
+import { isRouteHidden } from "@/lib/productConfig";
 import { rolesWithCapability } from "../utils/capabilities";
 import {
   all_admin_roles,
@@ -202,10 +203,12 @@ export const visibleMenuGroups = (groups: readonly MenuGroup[], context: MenuVis
     .filter((group) => group.items.length > 0);
 };
 
+export const routeOf = (item: MenuItem): string => item.route ?? item.page;
+
 // Menu groups organized by category - defined outside component for export.
 // Shape (key/page/label/roles/children) is consumed by page_utils.ts; only the
 // icons changed to lucide as part of the sidebar redesign.
-const menuGroups: MenuGroup[] = [
+const allMenuGroups: MenuGroup[] = [
   {
     groupLabel: "AI GATEWAY",
     items: [
@@ -478,9 +481,14 @@ const menuGroups: MenuGroup[] = [
   },
 ];
 
-const HOME_ROUTE = "home";
+const withoutHiddenRoutes = (items: MenuItem[]): MenuItem[] =>
+  items
+    .filter((item) => !isRouteHidden(routeOf(item)))
+    .map((item) => (item.children ? { ...item, children: withoutHiddenRoutes(item.children) } : item));
 
-export const routeOf = (item: MenuItem): string => item.route ?? item.page;
+const menuGroups: MenuGroup[] = allMenuGroups.map((group) => ({ ...group, items: withoutHiddenRoutes(group.items) }));
+
+const HOME_ROUTE = "home";
 
 const routeForPathname = (pathname: string): string => routeSegmentForPathname(pathname) || HOME_ROUTE;
 
@@ -763,4 +771,4 @@ const Sidebar_: React.FC<SidebarProps> = ({
 
 export default Sidebar_;
 
-export { menuGroups };
+export { allMenuGroups, menuGroups };

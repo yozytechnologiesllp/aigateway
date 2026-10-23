@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { menuGroups } from "@/components/leftnav";
+import { allMenuGroups } from "@/components/leftnav";
 import { legacyPageRedirectHref } from "./legacyPageRoutes";
 
 const redirect = (query: string) => legacyPageRedirectHref(new URLSearchParams(query));
@@ -36,7 +36,7 @@ describe("legacyPageRedirectHref", () => {
   });
 
   it("covers every sidebar page id with the route the sidebar itself links to", () => {
-    const leaves = menuGroups
+    const leaves = allMenuGroups
       .flatMap((group) => group.items.flatMap((item) => item.children ?? [item]))
       .filter((item) => !item.external_url);
     expect(leaves.length).toBeGreaterThan(30);

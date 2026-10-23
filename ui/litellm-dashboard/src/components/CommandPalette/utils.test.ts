@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { visibleMenuGroups, type MenuGroup, menuGroups } from "@/components/leftnav";
+import { isRouteHidden } from "@/lib/productConfig";
 import { flattenNavItems, matchNavItems, paletteScopeForRoute, shortcutLabel, type PaletteNavItem } from "./utils";
 
 describe("paletteScopeForRoute", () => {
@@ -46,13 +47,19 @@ describe("visibleMenuGroups", () => {
     expect(flattenNavItems(visible).map(({ route }) => route)).toEqual(["api-keys"]);
   });
 
-  it("hides Projects when its UI setting is disabled", () => {
-    const projectAdminContext = { ...context, userRole: "Admin", isTeamAdmin: true };
-    const visibleWithFlag = visibleMenuGroups(menuGroups, { ...projectAdminContext, enableProjectsUI: true });
-    const visibleWithoutFlag = visibleMenuGroups(menuGroups, { ...projectAdminContext, enableProjectsUI: false });
+  it("never shows a product-hidden route, even to an admin with every page flag enabled", () => {
+    const everyFlagAdmin = {
+      ...context,
+      userRole: "Admin",
+      isOrgAdmin: true,
+      isTeamAdmin: true,
+      enableProjectsUI: true,
+    };
+    const visible = visibleMenuGroups(menuGroups, everyFlagAdmin);
+    const routes = flattenNavItems(visible).map(({ route }) => route);
 
-    expect(flattenNavItems(visibleWithFlag).some(({ route }) => route === "projects")).toBe(true);
-    expect(flattenNavItems(visibleWithoutFlag).some(({ route }) => route === "projects")).toBe(false);
+    expect(routes.filter(isRouteHidden)).toEqual([]);
+    expect(routes).toEqual(expect.arrayContaining(["api-keys", "teams", "users", "logs"]));
   });
 
   it("keeps admin pages visible despite the internal-user page allowlist", () => {
@@ -63,7 +70,6 @@ describe("visibleMenuGroups", () => {
     });
 
     expect(flattenNavItems(visible).some(({ route }) => route === "users")).toBe(true);
-    expect(flattenNavItems(visible).some(({ route }) => route === "organizations")).toBe(true);
   });
 });
 

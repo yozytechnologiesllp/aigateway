@@ -159,13 +159,11 @@ describe("ModelsAndEndpointsPage", () => {
     expect(screen.getAllByRole("tab").map((tab) => tab.textContent)).toEqual([
       "Deployed Models",
       "Add Model",
-      "Auto-Routers Beta",
       "LLM Credentials",
       "Pass-Through Endpoints",
       "Health Status",
       "Model Retry Settings",
       "Model Group Alias",
-      "Model Access Group Budgets Beta",
       "Price Data Reload",
     ]);
   });
@@ -191,42 +189,13 @@ describe("ModelsAndEndpointsPage", () => {
     expect(screen.getByRole("tab", { name: "Deployed Models" })).toBeInTheDocument();
   });
 
-  // Read parity: the Auto-Routers list stays reachable for a view-only admin; only the
-  // create affordance inside it is withheld, which AutoRoutersTabPanel decides.
-  it("keeps the Auto-Routers tab for a view-only admin session", () => {
-    mockUseAuthorized.mockReturnValue(VIEW_ONLY_ADMIN);
-    renderPage();
-    expect(screen.getByRole("tab", { name: /Auto-Routers/ })).toBeInTheDocument();
-  });
+  it("never shows the beta Auto-Routers or Access Group Budgets tabs, even from a ?tab= deep link", () => {
+    renderPage({ searchParams: "?tab=auto-routers" });
 
-  // Auto-routers are excluded from the Deployed Models table, so this tab is their home: the only
-  // place in the product to list, create, edit or delete one.
-  describe("Auto-Routers tab", () => {
-    it("sits third, after Deployed Models and Add Model", () => {
-      renderPage();
-
-      const tabs = screen.getAllByRole("tab").map((tab) => tab.textContent);
-      expect(tabs[0]).toContain("Deployed Models");
-      expect(tabs[1]).toBe("Add Model");
-      expect(tabs[2]).toContain("Auto-Routers");
-      // Badged Beta while the tab settles; BetaBadge renders the label text.
-      expect(tabs[2]).toContain("Beta");
-    });
-
-    it("renders its panel when selected", async () => {
-      const user = userEvent.setup();
-      renderPage();
-
-      await user.click(screen.getByRole("tab", { name: /Auto-Routers/ }));
-      expect(screen.getByTestId("panel-auto-routers")).toBeInTheDocument();
-    });
-
-    it("is hidden from non-admins, who cannot write models", () => {
-      mockUseAuthorized.mockReturnValue(NON_ADMIN);
-      renderPage();
-
-      expect(screen.queryByRole("tab", { name: /Auto-Routers/ })).not.toBeInTheDocument();
-    });
+    expect(screen.queryByRole("tab", { name: /Auto-Routers/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: /Model Access Group Budgets/ })).not.toBeInTheDocument();
+    expect(screen.queryByTestId("panel-auto-routers")).not.toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Deployed Models" })).toHaveAttribute("aria-selected", "true");
   });
 
   describe("tab from the URL", () => {

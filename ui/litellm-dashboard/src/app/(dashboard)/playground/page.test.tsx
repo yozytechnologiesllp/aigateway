@@ -87,13 +87,12 @@ describe("PlaygroundPage ?tab= deep link", () => {
     expect(screen.getByRole("tab", { name: "Chat" })).toHaveAttribute("aria-selected", "false");
   });
 
-  it("activates Decisions from ?tab=system-one", () => {
+  it("keeps the beta Decisions tab hidden, falling back to Chat from ?tab=system-one", () => {
     renderWithProviders(<PlaygroundPage />, { searchParams: { tab: "system-one" } });
 
-    const tab = screen.getByRole("tab", { name: /^Decisions/ });
-    expect(tab).toHaveAttribute("aria-selected", "true");
-    expect(tab).toHaveTextContent("Beta");
-    expect(screen.getByTestId("system-one-ui")).toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: /^Decisions/ })).not.toBeInTheDocument();
+    expect(screen.queryByTestId("system-one-ui")).not.toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Chat" })).toHaveAttribute("aria-selected", "true");
   });
 
   it("falls back to Chat when ?tab= is not a playground tab", () => {
