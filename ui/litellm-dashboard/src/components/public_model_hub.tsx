@@ -1,3 +1,4 @@
+import { useBrand } from "@/hooks/useBrand";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ExternalLinkIcon, SearchIcon } from "@heroicons/react/outline";
 import { SortingState } from "@tanstack/react-table";
@@ -99,6 +100,7 @@ const PublicModelHub: React.FC<PublicModelHubProps> = ({ accessToken, isEmbedded
   const [pageTitle, setPageTitle] = useState<string>("LiteLLM Gateway");
   const [customDocsDescription, setCustomDocsDescription] = useState<string | null>(null);
   const [litellmVersion, setLitellmVersion] = useState<string>("");
+  const brand = useBrand();
   const [usefulLinks, setUsefulLinks] = useState<Record<string, string | { url: string; index: number }>>({});
   const [agentLoading, setAgentLoading] = useState<boolean>(true);
   const [mcpLoading, setMcpLoading] = useState<boolean>(true);
@@ -358,7 +360,7 @@ const PublicModelHub: React.FC<PublicModelHubProps> = ({ accessToken, isEmbedded
                 <div className="flex items-center space-x-3 text-sm text-muted-foreground">
                   <span className="flex items-center">
                     <span className="w-4 h-4 mr-2">🔧</span>
-                    Built with litellm: v{litellmVersion}
+                    {brand.productName} v{brand.version}
                   </span>
                 </div>
               </Card>

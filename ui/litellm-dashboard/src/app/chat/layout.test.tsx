@@ -36,6 +36,9 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/app/(dashboard)/hooks/useAuthorized", () => ({ default: mockUseAuthorized }));
 vi.mock("@/app/(dashboard)/hooks/uiSettings/useUISettings", () => ({ useUISettings: mockUseUISettings }));
 vi.mock("@/utils/uiHref", () => ({ uiHref: mockUiHref }));
+
+const productRoutes = vi.hoisted(() => ({ hidden: new Set<string>() }));
+vi.mock("@/lib/productConfig", () => ({ isRouteHidden: (route: string) => productRoutes.hidden.has(route) }));
 vi.mock("@/components/navbar", () => ({ default: () => <div data-testid="navbar" /> }));
 vi.mock("@/contexts/ThemeContext", () => ({
   ThemeProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
@@ -55,6 +58,20 @@ describe("ChatLayout", () => {
     state.isAuthorized = true;
     mockReplace.mockClear();
     mockUiHref.mockClear();
+    productRoutes.hidden = new Set();
+  });
+
+  it("redirects to the dashboard when the product hides chat, even with enable_chat_ui on", () => {
+    state.enableChatUI = true;
+    productRoutes.hidden = new Set(["chat"]);
+    render(
+      <ChatLayout>
+        <div data-testid="page-content" />
+      </ChatLayout>,
+    );
+    expect(screen.queryByTestId("chat-shell")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("page-content")).not.toBeInTheDocument();
+    expect(mockReplace).toHaveBeenCalledWith("/mocked-ui/");
   });
 
   it("renders the chat shell when enable_chat_ui is on", () => {

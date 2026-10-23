@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ChatShellProvider } from "@/contexts/ChatShellContext";
 import ChatShell from "@/components/chat/ChatShell";
 import { uiHref } from "@/utils/uiHref";
+import { isRouteHidden } from "@/lib/productConfig";
 
 // The nuqs Next adapter uses useSearchParams, so keep the chat tree behind Suspense.
 function ChatLayoutContent({ children }: { children: React.ReactNode }) {
@@ -25,7 +26,7 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   const chatEnabled = Boolean(uiSettings?.values?.enable_chat_ui);
-  const blocked = !isUISettingsLoading && !chatEnabled;
+  const blocked = isRouteHidden("chat") || (!isUISettingsLoading && !chatEnabled);
 
   useEffect(() => {
     if (blocked) router.replace(uiHref(""));

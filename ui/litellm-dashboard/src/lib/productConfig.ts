@@ -12,6 +12,7 @@ const HIDDEN_ROUTES: ReadonlySet<string> = new Set([
   "tag-management",
   "learning-resources",
   "moyai",
+  "chat",
 ]);
 
 export const SHOW_UPSTREAM_LINKS = false;
