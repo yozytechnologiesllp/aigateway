@@ -78,6 +78,7 @@ import { Tag } from "../tag_management/types";
 import EditLoggingSettings from "../team/EditLoggingSettings";
 import { useZodForm } from "@/lib/forms/useZodForm";
 import VectorStoreSelector from "../vector_store_management/VectorStoreSelector";
+import { showPremiumFeature } from "@/lib/productConfig";
 
 interface KeyEditViewProps {
   keyData: KeyResponse;
@@ -643,7 +644,7 @@ function KeyEditSession({
             </FormField>
           )}
 
-          {canViewPolicies && (
+          {canViewPolicies && showPremiumFeature(premiumUser) && (
             <FormField
               control={form.control}
               name="policies"
@@ -676,7 +677,7 @@ function KeyEditSession({
             )}
           </FormField>
 
-          {canViewPrompts && (
+          {canViewPrompts && showPremiumFeature(premiumUser) && (
             <FormField
               control={form.control}
               name="prompts"
@@ -717,33 +718,24 @@ function KeyEditSession({
             )}
           </FormField>
 
-          <FormField
-            control={form.control}
-            name="allowed_passthrough_routes"
-            label={
-              premiumUser
-                ? "Allowed Pass Through Routes"
-                : labelWithHint(
-                    "Allowed Pass Through Routes",
-                    "Setting allowed pass through routes by key is a premium feature",
-                  )
-            }
-          >
-            {({ value, onChange }) => (
-              <PassThroughRoutesSelector
-                value={value as string[] | undefined}
-                onChange={onChange}
-                accessToken={accessToken || ""}
-                placeholder={currentValuePlaceholder(
-                  premiumUser,
-                  keyData.metadata?.allowed_passthrough_routes,
-                  "Premium feature - Upgrade to set allowed pass through routes by key",
-                  "Select or enter allowed pass through routes",
-                )}
-                disabled={!premiumUser}
-              />
-            )}
-          </FormField>
+          {showPremiumFeature(premiumUser) && (
+            <FormField control={form.control} name="allowed_passthrough_routes" label="Allowed Pass Through Routes">
+              {({ value, onChange }) => (
+                <PassThroughRoutesSelector
+                  value={value as string[] | undefined}
+                  onChange={onChange}
+                  accessToken={accessToken || ""}
+                  placeholder={currentValuePlaceholder(
+                    premiumUser,
+                    keyData.metadata?.allowed_passthrough_routes,
+                    "Premium feature - Upgrade to set allowed pass through routes by key",
+                    "Select or enter allowed pass through routes",
+                  )}
+                  disabled={!premiumUser}
+                />
+              )}
+            </FormField>
+          )}
 
           <FormField control={form.control} name="vector_stores" label="Vector Stores">
             {({ value, onChange }) => (
@@ -782,26 +774,28 @@ function KeyEditSession({
 
           <KeyAgentAndSkillFields control={form.control} accessToken={accessToken || ""} />
 
-          <FormField
-            control={form.control}
-            name="organization_id"
-            label={labelWithHint(
-              "Organization",
-              "The organization this key belongs to. Selecting an organization filters the available teams.",
-            )}
-            description={hasProject ? "Organization is locked because this key belongs to a project" : undefined}
-          >
-            {({ value, onChange, id }) => (
-              <OrganizationDropdown
-                id={id}
-                value={value}
-                organizations={organizations}
-                loading={isOrganizationsLoading}
-                disabled={userRole !== "Admin" || hasProject}
-                onChange={(orgId) => handleOrganizationChange(onChange, orgId)}
-              />
-            )}
-          </FormField>
+          {showPremiumFeature(premiumUser) && (
+            <FormField
+              control={form.control}
+              name="organization_id"
+              label={labelWithHint(
+                "Organization",
+                "The organization this key belongs to. Selecting an organization filters the available teams.",
+              )}
+              description={hasProject ? "Organization is locked because this key belongs to a project" : undefined}
+            >
+              {({ value, onChange, id }) => (
+                <OrganizationDropdown
+                  id={id}
+                  value={value}
+                  organizations={organizations}
+                  loading={isOrganizationsLoading}
+                  disabled={userRole !== "Admin" || hasProject}
+                  onChange={(orgId) => handleOrganizationChange(onChange, orgId)}
+                />
+              )}
+            </FormField>
+          )}
 
           <FormField
             control={form.control}

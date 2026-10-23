@@ -16,6 +16,15 @@ import {
 } from "../networking";
 import { KeyEditView } from "./key_edit_view";
 
+const productUpsell = vi.hoisted(() => ({ show: true }));
+vi.mock("@/lib/productConfig", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/productConfig")>()),
+  get SHOW_ENTERPRISE_UPSELL() {
+    return productUpsell.show;
+  },
+  showPremiumFeature: (premiumUser: boolean | null | undefined) => premiumUser === true || productUpsell.show,
+}));
+
 const can = vi.fn();
 vi.mock("@/app/(dashboard)/hooks/useCan", () => ({
   default: (...args: unknown[]) => can(...args),

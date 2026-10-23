@@ -36,6 +36,7 @@ import {
 import { LoggingCallbacksTable } from "./Settings/LoggingAndAlerts/LoggingCallbacks/LoggingCallbacksTable";
 import { AlertingObject } from "./Settings/LoggingAndAlerts/LoggingCallbacks/types";
 import { parseErrorMessage } from "./shared/errorUtils";
+import { showPremiumFeature } from "@/lib/productConfig";
 interface SettingsPageProps {
   accessToken: string | null;
   userRole: string | null;
@@ -624,49 +625,51 @@ const Settings: React.FC<SettingsPageProps> = ({ accessToken, userRole, userID, 
                 </TableHeader>
 
                 <TableBody>
-                  {Object.entries(alerts_to_UI_NAME).map(([key, value], index) => (
-                    <TableRow key={index}>
-                      <TableCell>
-                        {key == "region_outage_alerts" ? (
-                          premiumUser ? (
+                  {Object.entries(alerts_to_UI_NAME)
+                    .filter(([key]) => key !== "region_outage_alerts" || showPremiumFeature(premiumUser))
+                    .map(([key, value], index) => (
+                      <TableRow key={index}>
+                        <TableCell>
+                          {key == "region_outage_alerts" ? (
+                            premiumUser ? (
+                              <Switch
+                                id="switch"
+                                name="switch"
+                                checked={isAlertOn(key)}
+                                onCheckedChange={() => handleSwitchChange(key)}
+                              />
+                            ) : (
+                              <Button className="flex items-center justify-center">
+                                <a href="https://forms.gle/W3U4PZpJGFHWtHyA9" target="_blank">
+                                  ✨ Enterprise Feature
+                                </a>
+                              </Button>
+                            )
+                          ) : (
                             <Switch
                               id="switch"
                               name="switch"
                               checked={isAlertOn(key)}
                               onCheckedChange={() => handleSwitchChange(key)}
                             />
-                          ) : (
-                            <Button className="flex items-center justify-center">
-                              <a href="https://forms.gle/W3U4PZpJGFHWtHyA9" target="_blank">
-                                ✨ Enterprise Feature
-                              </a>
-                            </Button>
-                          )
-                        ) : (
-                          <Switch
-                            id="switch"
-                            name="switch"
-                            checked={isAlertOn(key)}
-                            onCheckedChange={() => handleSwitchChange(key)}
+                          )}
+                        </TableCell>
+                        <TableCell className="whitespace-normal break-words">
+                          <p>{value}</p>
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            name={key}
+                            type="password"
+                            defaultValue={
+                              alertToWebhooks && alertToWebhooks[key]
+                                ? alertToWebhooks[key]
+                                : (catchAllWebhookURL as string)
+                            }
                           />
-                        )}
-                      </TableCell>
-                      <TableCell className="whitespace-normal break-words">
-                        <p>{value}</p>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          name={key}
-                          type="password"
-                          defaultValue={
-                            alertToWebhooks && alertToWebhooks[key]
-                              ? alertToWebhooks[key]
-                              : (catchAllWebhookURL as string)
-                          }
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        </TableCell>
+                      </TableRow>
+                    ))}
                 </TableBody>
               </Table>
               <Button size="xs" className="mt-2" onClick={handleSaveAlerts}>

@@ -7,6 +7,15 @@ import * as networking from "./networking";
 import { toast } from "@/lib/toast";
 import { expectControlBesideLabel } from "../../tests/fieldOrientation";
 
+const productUpsell = vi.hoisted(() => ({ show: true }));
+vi.mock("@/lib/productConfig", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/productConfig")>()),
+  get SHOW_ENTERPRISE_UPSELL() {
+    return productUpsell.show;
+  },
+  showPremiumFeature: (premiumUser: boolean | null | undefined) => premiumUser === true || productUpsell.show,
+}));
+
 vi.mock("./networking", () => ({
   userCreateCall: vi.fn(),
   modelAvailableCall: vi.fn().mockResolvedValue({ data: [] }),
@@ -312,6 +321,18 @@ describe("CreateUserButton", () => {
   });
 
   describe("organizations", () => {
+    it("leaves out the enterprise Organization field without a licence when upsells are off", () => {
+      productUpsell.show = false;
+      try {
+        renderWithProviders(<CreateUserButton {...defaultProps} isEmbedded />);
+
+        expect(screen.getByLabelText(/user email/i)).toBeInTheDocument();
+        expect(screen.queryByText("Organization")).not.toBeInTheDocument();
+      } finally {
+        productUpsell.show = true;
+      }
+    });
+
     it("should send organizations list in POST body when organizations are selected", async () => {
       const { useOrganizations } = await import("@/app/(dashboard)/hooks/organizations/useOrganizations");
       vi.mocked(useOrganizations).mockReturnValue({

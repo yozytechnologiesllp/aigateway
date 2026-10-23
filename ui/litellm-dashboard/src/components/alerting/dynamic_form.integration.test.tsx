@@ -4,6 +4,15 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import DynamicForm from "./dynamic_form";
 
+const productUpsell = vi.hoisted(() => ({ show: true }));
+vi.mock("@/lib/productConfig", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/productConfig")>()),
+  get SHOW_ENTERPRISE_UPSELL() {
+    return productUpsell.show;
+  },
+  showPremiumFeature: (premiumUser: boolean | null | undefined) => premiumUser === true || productUpsell.show,
+}));
+
 interface Setting {
   field_name: string;
   field_description: string;

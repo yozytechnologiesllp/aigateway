@@ -23,6 +23,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import CopyButton from "@/components/shared/CopyButton";
 import { cn } from "@/lib/cva.config";
 import React, { useEffect, useState } from "react";
+import { showPremiumFeature } from "@/lib/productConfig";
 
 function hueFromString(seed: string): number {
   let h = 0;
@@ -97,22 +98,23 @@ const UserDropdown: React.FC<UserDropdownProps> = ({ onLogout, variant = "navbar
           <Mail className="size-4" />
           <span className="text-muted-foreground">{userEmail || "-"}</span>
         </div>
-        {premiumUser ? (
-          <Badge>
-            <Crown className="size-3" />
-            Premium
-          </Badge>
-        ) : (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger render={<Badge variant="outline" />}>
-                <Crown className="size-3" />
-                Standard
-              </TooltipTrigger>
-              <TooltipContent side="left">Upgrade to Premium for advanced features</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
+        {showPremiumFeature(premiumUser) &&
+          (premiumUser ? (
+            <Badge>
+              <Crown className="size-3" />
+              Premium
+            </Badge>
+          ) : (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger render={<Badge variant="outline" />}>
+                  <Crown className="size-3" />
+                  Standard
+                </TooltipTrigger>
+                <TooltipContent side="left">Upgrade to Premium for advanced features</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ))}
       </div>
       <Separator className="my-2" />
       <div className="flex w-full items-center justify-between gap-2">

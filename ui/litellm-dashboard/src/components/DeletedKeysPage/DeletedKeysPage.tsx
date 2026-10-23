@@ -7,6 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/shared/Alert";
 import { useDeletedKeys } from "@/app/(dashboard)/hooks/keys/useKeys";
 import useAuthorized from "@/app/(dashboard)/hooks/useAuthorized";
 import { DeletedKeysTable } from "./DeletedKeysTable/DeletedKeysTable";
+import { SHOW_ENTERPRISE_UPSELL } from "@/lib/productConfig";
 
 export default function DeletedKeysPage() {
   const { premiumUser } = useAuthorized();
@@ -16,7 +17,7 @@ export default function DeletedKeysPage() {
 
   return (
     <PageContent>
-      {!premiumUser && (
+      {!premiumUser && SHOW_ENTERPRISE_UPSELL && (
         <Alert className="shrink-0">
           <Info />
           <AlertTitle>Coming soon to Enterprise</AlertTitle>

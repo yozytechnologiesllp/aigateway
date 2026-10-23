@@ -135,6 +135,7 @@ import ResetMemberBudgetsDialog from "./ResetMemberBudgetsDialog";
 import { customBudgetMemberUserIds, shouldPromptMemberBudgetReset } from "./memberBudgetReset";
 import { useMemberBudgetReset } from "./useMemberBudgetReset";
 import { fetchClient } from "@/lib/http/api";
+import { showPremiumFeature } from "@/lib/productConfig";
 
 const UI_MANAGED_METADATA_KEYS: ReadonlySet<string> = new Set([
   "logging",
@@ -2114,33 +2115,35 @@ const TeamInfoView: React.FC<TeamInfoProps> = ({
                     )}
                   </FormField>
 
-                  <FormField
-                    control={form.control}
-                    name="allowed_passthrough_routes"
-                    label={
-                      !premiumUser
-                        ? labelWithHint(
-                            "Allowed Pass Through Routes",
-                            "Premium feature - Upgrade to set allowed pass through routes",
-                          )
-                        : !is_proxy_admin
+                  {showPremiumFeature(premiumUser) && (
+                    <FormField
+                      control={form.control}
+                      name="allowed_passthrough_routes"
+                      label={
+                        !premiumUser
                           ? labelWithHint(
                               "Allowed Pass Through Routes",
-                              "Only proxy admins can set allowed pass through routes",
+                              "Premium feature - Upgrade to set allowed pass through routes",
                             )
-                          : "Allowed Pass Through Routes"
-                    }
-                  >
-                    {({ value, onChange }) => (
-                      <PassThroughRoutesSelector
-                        value={value}
-                        onChange={onChange}
-                        accessToken={accessToken || ""}
-                        placeholder="Select pass through routes"
-                        disabled={!premiumUser || !is_proxy_admin}
-                      />
-                    )}
-                  </FormField>
+                          : !is_proxy_admin
+                            ? labelWithHint(
+                                "Allowed Pass Through Routes",
+                                "Only proxy admins can set allowed pass through routes",
+                              )
+                            : "Allowed Pass Through Routes"
+                      }
+                    >
+                      {({ value, onChange }) => (
+                        <PassThroughRoutesSelector
+                          value={value}
+                          onChange={onChange}
+                          accessToken={accessToken || ""}
+                          placeholder="Select pass through routes"
+                          disabled={!premiumUser || !is_proxy_admin}
+                        />
+                      )}
+                    </FormField>
+                  )}
 
                   <FormField control={form.control} name="mcp_servers_and_groups" label="MCP Servers / Access Groups">
                     {({ value, onChange }) => (
@@ -2224,21 +2227,23 @@ const TeamInfoView: React.FC<TeamInfoProps> = ({
                     )}
                   </FormField>
 
-                  <FormField control={form.control} name="organization_id" label="Organization">
-                    {({ id, value, onChange }) => (
-                      <SearchSelect
-                        inputId={id}
-                        value={value ?? ""}
-                        onValueChange={onChange}
-                        options={userOrganizations.map((org) => ({
-                          value: org.organization_id ?? "",
-                          label: org.organization_alias || org.organization_id || "",
-                        }))}
-                        placeholder="Select an organization"
-                        emptyText="No matching organizations"
-                      />
-                    )}
-                  </FormField>
+                  {showPremiumFeature(premiumUser) && (
+                    <FormField control={form.control} name="organization_id" label="Organization">
+                      {({ id, value, onChange }) => (
+                        <SearchSelect
+                          inputId={id}
+                          value={value ?? ""}
+                          onValueChange={onChange}
+                          options={userOrganizations.map((org) => ({
+                            value: org.organization_id ?? "",
+                            label: org.organization_alias || org.organization_id || "",
+                          }))}
+                          placeholder="Select an organization"
+                          emptyText="No matching organizations"
+                        />
+                      )}
+                    </FormField>
+                  )}
 
                   <FormField control={form.control} name="logging_settings" label="Logging Settings">
                     {({ value, onChange }) => (
@@ -2246,27 +2251,29 @@ const TeamInfoView: React.FC<TeamInfoProps> = ({
                     )}
                   </FormField>
 
-                  <FormField
-                    control={form.control}
-                    name="secret_manager_settings"
-                    label="Secret Manager Settings"
-                    description={
-                      premiumUser
-                        ? "Enter secret manager configuration as a JSON object."
-                        : "Premium feature - Upgrade to manage secret manager settings."
-                    }
-                  >
-                    {({ ref, value, ...field }) => (
-                      <Textarea
-                        {...field}
-                        ref={ref}
-                        value={value ?? ""}
-                        rows={6}
-                        placeholder='{"namespace": "admin", "mount": "secret", "path_prefix": "litellm"}'
-                        disabled={!premiumUser}
-                      />
-                    )}
-                  </FormField>
+                  {showPremiumFeature(premiumUser) && (
+                    <FormField
+                      control={form.control}
+                      name="secret_manager_settings"
+                      label="Secret Manager Settings"
+                      description={
+                        premiumUser
+                          ? "Enter secret manager configuration as a JSON object."
+                          : "Premium feature - Upgrade to manage secret manager settings."
+                      }
+                    >
+                      {({ ref, value, ...field }) => (
+                        <Textarea
+                          {...field}
+                          ref={ref}
+                          value={value ?? ""}
+                          rows={6}
+                          placeholder='{"namespace": "admin", "mount": "secret", "path_prefix": "litellm"}'
+                          disabled={!premiumUser}
+                        />
+                      )}
+                    </FormField>
+                  )}
                 </FieldGroup>
 
                 <div className="sticky z-chrome -inset-x-6 -bottom-6 border-t border-border bg-card p-4 pr-0">

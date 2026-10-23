@@ -57,6 +57,7 @@ import {
 } from "../shared/InheritedBudgetHint";
 import { KeyEditView } from "./key_edit_view";
 import { isTeamAdminEditingMemberKey, teamAdminMemberKeyPayload } from "./teamAdminMemberKeyPayload";
+import { showPremiumFeature } from "@/lib/productConfig";
 
 export function needsLifetimeSpendBackfill(spend: number, totalSpend: number | null | undefined): boolean {
   return (totalSpend ?? 0) < spend;
@@ -596,6 +597,7 @@ export default function KeyInfoView({
         isBlocked={isBlocked}
         canModifyKey={canModifyKey}
         backButtonText={backButtonText}
+        showRegenerate={showPremiumFeature(premiumUser)}
         regenerateDisabled={!premiumUser}
         regenerateTooltip={
           !premiumUser ? "This is a LiteLLM Enterprise feature, and requires a valid key to use." : undefined

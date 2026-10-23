@@ -28,3 +28,8 @@ export const isTabHidden = (route: string, tab: string): boolean => HIDDEN_TABS[
 
 export const withoutHiddenTabs = <T extends string>(route: string, tabs: readonly T[]): T[] =>
   tabs.filter((tab) => !isTabHidden(route, tab));
+
+export const SHOW_ENTERPRISE_UPSELL = false;
+
+export const showPremiumFeature = (premiumUser: boolean | null | undefined): boolean =>
+  premiumUser === true || SHOW_ENTERPRISE_UPSELL;

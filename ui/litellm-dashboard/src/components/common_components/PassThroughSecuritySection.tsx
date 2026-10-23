@@ -2,6 +2,7 @@ import React from "react";
 
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { showPremiumFeature } from "@/lib/productConfig";
 
 export interface PassThroughSecuritySectionProps {
   premiumUser: boolean;
@@ -14,6 +15,7 @@ const PassThroughSecuritySection: React.FC<PassThroughSecuritySectionProps> = ({
   authEnabled,
   onAuthChange,
 }) => {
+  if (!showPremiumFeature(premiumUser)) return null;
   return (
     <Card className="block p-6">
       <h3 className="mb-2 text-lg font-semibold text-foreground">Security</h3>

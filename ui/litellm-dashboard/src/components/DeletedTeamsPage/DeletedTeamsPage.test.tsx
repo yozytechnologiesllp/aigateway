@@ -5,6 +5,15 @@ import { renderWithProviders } from "../../../tests/test-utils";
 import DeletedTeamsPage from "./DeletedTeamsPage";
 import { useDeletedTeams, DeletedTeam } from "@/app/(dashboard)/hooks/teams/useTeams";
 
+const productUpsell = vi.hoisted(() => ({ show: true }));
+vi.mock("@/lib/productConfig", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/productConfig")>()),
+  get SHOW_ENTERPRISE_UPSELL() {
+    return productUpsell.show;
+  },
+  showPremiumFeature: (premiumUser: boolean | null | undefined) => premiumUser === true || productUpsell.show,
+}));
+
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
 vi.mock("@/app/(dashboard)/hooks/teams/useTeams", () => ({

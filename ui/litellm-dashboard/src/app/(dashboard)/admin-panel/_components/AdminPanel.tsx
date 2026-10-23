@@ -36,6 +36,7 @@ import { FormField } from "@/components/shared/form/FormField";
 import { Input } from "@/components/ui/input";
 import { useZodForm } from "@/lib/forms/useZodForm";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { showPremiumFeature } from "@/lib/productConfig";
 
 const allowedIPSchema = z.object({
   ip: z.string().min(1, "Please enter an IP address"),
@@ -251,18 +252,20 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ proxySettings }) => {
                   Allowed IPs
                 </Button>
               </div>
-              <div>
-                <Button
-                  style={{ width: "150px" }}
-                  onClick={() =>
-                    premiumUser === true
-                      ? setIsUIAccessControlModalVisible(true)
-                      : toast.fromError("Only premium users can configure UI access control")
-                  }
-                >
-                  UI Access Control
-                </Button>
-              </div>
+              {showPremiumFeature(premiumUser) && (
+                <div>
+                  <Button
+                    style={{ width: "150px" }}
+                    onClick={() =>
+                      premiumUser === true
+                        ? setIsUIAccessControlModalVisible(true)
+                        : toast.fromError("Only premium users can configure UI access control")
+                    }
+                  >
+                    UI Access Control
+                  </Button>
+                </div>
+              )}
             </div>
           </Card>
 

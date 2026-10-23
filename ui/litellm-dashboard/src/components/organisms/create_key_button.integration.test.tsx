@@ -6,6 +6,15 @@ import { keyCreateCall, keyCreateServiceAccountCall, modelAvailableCall, userFil
 import { toast } from "@/lib/toast";
 import CreateKey from "./create_key_button";
 
+const productUpsell = vi.hoisted(() => ({ show: true }));
+vi.mock("@/lib/productConfig", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/productConfig")>()),
+  get SHOW_ENTERPRISE_UPSELL() {
+    return productUpsell.show;
+  },
+  showPremiumFeature: (premiumUser: boolean | null | undefined) => premiumUser === true || productUpsell.show,
+}));
+
 const state = vi.hoisted(() => ({
   authorized: {
     accessToken: "test-token",

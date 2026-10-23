@@ -20,6 +20,7 @@ import { isProxyAdminRole } from "@/utils/roles";
 import { ChevronsUpDown, Crown, IdCard, KeyRound, LogOut, Mail, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { showPremiumFeature } from "@/lib/productConfig";
 
 function hueFromString(seed: string): number {
   let h = 0;
@@ -202,19 +203,21 @@ const SidebarAccountMenu: React.FC<SidebarAccountMenuProps> = ({ onLogout, colla
         </div>
 
         <div className="flex flex-col px-3 py-2">
-          <InfoRow icon={<Crown className="size-[17px]" />} label="Tier">
-            {premiumUser ? (
-              <Badge variant="outline" className="gap-1 border-warning/30 bg-warning/10 text-warning">
-                <Crown />
-                Premium
-              </Badge>
-            ) : (
-              <Badge variant="secondary" className="gap-1" title="Upgrade to Premium for advanced features">
-                <Crown />
-                Standard
-              </Badge>
-            )}
-          </InfoRow>
+          {showPremiumFeature(premiumUser) && (
+            <InfoRow icon={<Crown className="size-[17px]" />} label="Tier">
+              {premiumUser ? (
+                <Badge variant="outline" className="gap-1 border-warning/30 bg-warning/10 text-warning">
+                  <Crown />
+                  Premium
+                </Badge>
+              ) : (
+                <Badge variant="secondary" className="gap-1" title="Upgrade to Premium for advanced features">
+                  <Crown />
+                  Standard
+                </Badge>
+              )}
+            </InfoRow>
+          )}
           <InfoRow icon={<ShieldCheck className="size-[17px]" />} label="Role">
             <Badge variant="secondary">{userRole}</Badge>
           </InfoRow>

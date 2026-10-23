@@ -19,6 +19,15 @@ import { EMPTY_DECISION_CATALOG } from "@/lib/decisionModels";
 import { handleAddModelSubmit } from "./handle_add_model_submit";
 import { toast } from "@/lib/toast";
 
+const productUpsell = vi.hoisted(() => ({ show: true }));
+vi.mock("@/lib/productConfig", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/productConfig")>()),
+  get SHOW_ENTERPRISE_UPSELL() {
+    return productUpsell.show;
+  },
+  showPremiumFeature: (premiumUser: boolean | null | undefined) => premiumUser === true || productUpsell.show,
+}));
+
 vi.mock("../molecules/models/ProviderLogo", () => ({
   ProviderLogo: ({ provider, className }: { provider: string; className?: string }) => (
     <div className={className} data-testid={`provider-logo-${provider}`}>

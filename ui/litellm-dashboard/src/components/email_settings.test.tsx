@@ -5,6 +5,15 @@ import userEvent from "@testing-library/user-event";
 import { renderWithProviders } from "@/../tests/test-utils";
 import EmailSettings from "./email_settings";
 
+const productUpsell = vi.hoisted(() => ({ show: true }));
+vi.mock("@/lib/productConfig", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/productConfig")>()),
+  get SHOW_ENTERPRISE_UPSELL() {
+    return productUpsell.show;
+  },
+  showPremiumFeature: (premiumUser: boolean | null | undefined) => premiumUser === true || productUpsell.show,
+}));
+
 const { serviceHealthCheck, setCallbacksCall } = vi.hoisted(() => ({
   serviceHealthCheck: vi.fn(),
   setCallbacksCall: vi.fn(),

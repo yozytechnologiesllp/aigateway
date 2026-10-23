@@ -92,6 +92,7 @@ import {
 import { buildKeyCreatePayload, type KeyCreateInput } from "./createKeyPayload";
 import { simplifyKeyGenerateError } from "./utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { showPremiumFeature } from "@/lib/productConfig";
 
 const KEY_TYPE_OPTIONS = [
   { value: "llm_api", label: "AI APIs", hint: "Can call only AI API routes (chat/completions, embeddings, etc.)" },
@@ -821,29 +822,31 @@ const CreateKey: React.FC<CreateKeyProps> = ({ team, teams, data, addKey, autoOp
                     </div>
                   </div>
                 )}
-                <MountedFormField
-                  label={
-                    <span>
-                      Organization{" "}
-                      <SimpleTooltip content="The organization this key belongs to. Selecting an organization filters the available teams.">
-                        <Info className="ml-1 inline size-3.5 align-text-bottom" />
-                      </SimpleTooltip>
-                    </span>
-                  }
-                  name="organization_id"
-                  className="mt-4"
-                >
-                  {(control) => (
-                    <OrganizationDropdown
-                      id={control.id}
-                      value={typeof control.value === "string" ? control.value : null}
-                      organizations={organizations}
-                      loading={isOrganizationsLoading}
-                      disabled={userRole !== "Admin"}
-                      onChange={changeOrganization(control.onChange)}
-                    />
-                  )}
-                </MountedFormField>
+                {showPremiumFeature(premiumUser) && (
+                  <MountedFormField
+                    label={
+                      <span>
+                        Organization{" "}
+                        <SimpleTooltip content="The organization this key belongs to. Selecting an organization filters the available teams.">
+                          <Info className="ml-1 inline size-3.5 align-text-bottom" />
+                        </SimpleTooltip>
+                      </span>
+                    }
+                    name="organization_id"
+                    className="mt-4"
+                  >
+                    {(control) => (
+                      <OrganizationDropdown
+                        id={control.id}
+                        value={typeof control.value === "string" ? control.value : null}
+                        organizations={organizations}
+                        loading={isOrganizationsLoading}
+                        disabled={userRole !== "Admin"}
+                        onChange={changeOrganization(control.onChange)}
+                      />
+                    )}
+                  </MountedFormField>
+                )}
                 <MountedFormField
                   label={
                     <span>
@@ -1096,22 +1099,24 @@ const CreateKey: React.FC<CreateKeyProps> = ({ team, teams, data, addKey, autoOp
                         </FieldLabel>
                         <BudgetWindowsEditor value={budgetLimits} onChange={setBudgetLimits} />
                       </Field>
-                      <Field className="mt-4">
-                        <FieldLabel>
-                          <span>
-                            Per-Model Budgets{" "}
-                            <SimpleTooltip content="Cap spend on individual models, each with its own reset window. Enforced across every request this key makes; usage is reported on the key's info page.">
-                              <Info className="ml-1 inline size-3.5 align-text-bottom" />
-                            </SimpleTooltip>
-                          </span>
-                        </FieldLabel>
-                        <ModelMaxBudgetEditor
-                          value={modelMaxBudget}
-                          onChange={setModelMaxBudget}
-                          availableModels={modelsToPick}
-                          premiumUser={premiumUser === true}
-                        />
-                      </Field>
+                      {showPremiumFeature(premiumUser) && (
+                        <Field className="mt-4">
+                          <FieldLabel>
+                            <span>
+                              Per-Model Budgets{" "}
+                              <SimpleTooltip content="Cap spend on individual models, each with its own reset window. Enforced across every request this key makes; usage is reported on the key's info page.">
+                                <Info className="ml-1 inline size-3.5 align-text-bottom" />
+                              </SimpleTooltip>
+                            </span>
+                          </FieldLabel>
+                          <ModelMaxBudgetEditor
+                            value={modelMaxBudget}
+                            onChange={setModelMaxBudget}
+                            availableModels={modelsToPick}
+                            premiumUser={premiumUser === true}
+                          />
+                        </Field>
+                      )}
                       <Field className="mt-4">
                         <FieldLabel>
                           <span>
@@ -1388,7 +1393,7 @@ const CreateKey: React.FC<CreateKeyProps> = ({ team, teams, data, addKey, autoOp
                           )}
                         </MountedFormField>
                       )}
-                      {canViewPolicies && (
+                      {canViewPolicies && showPremiumFeature(premiumUser) && (
                         <MountedFormField
                           label={
                             <span>
@@ -1429,7 +1434,7 @@ const CreateKey: React.FC<CreateKeyProps> = ({ team, teams, data, addKey, autoOp
                           )}
                         </MountedFormField>
                       )}
-                      {canViewPrompts && (
+                      {canViewPrompts && showPremiumFeature(premiumUser) && (
                         <MountedFormField
                           label={
                             <span>
@@ -1491,45 +1496,47 @@ const CreateKey: React.FC<CreateKeyProps> = ({ team, teams, data, addKey, autoOp
                           />
                         )}
                       </MountedFormField>
-                      <MountedFormField
-                        label={
-                          <span>
-                            Allowed Pass Through Routes{" "}
-                            <SimpleTooltip content="Allow this key to use specific pass through routes">
-                              <a
-                                href="https://docs.litellm.ai/docs/proxy/pass_through"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(e) => e.stopPropagation()} // Prevent accordion from collapsing when clicking link
-                              >
-                                <Info className="ml-1 inline size-3.5 align-text-bottom" />
-                              </a>
-                            </SimpleTooltip>
-                          </span>
-                        }
-                        name="allowed_passthrough_routes"
-                        className="mt-4"
-                        help={
-                          premiumUser
-                            ? "Select existing pass through routes or enter new ones"
-                            : "Premium feature - Upgrade to set pass through routes by key"
-                        }
-                      >
-                        {(control) => (
-                          <PassThroughRoutesSelector
-                            value={control.value as string[] | undefined}
-                            onChange={control.onChange}
-                            accessToken={accessToken}
-                            placeholder={
-                              !premiumUser
-                                ? "Premium feature - Upgrade to set pass through routes by key"
-                                : "Select or enter pass through routes"
-                            }
-                            disabled={!premiumUser}
-                            teamId={selectedCreateKeyTeam ? selectedCreateKeyTeam.team_id : null}
-                          />
-                        )}
-                      </MountedFormField>
+                      {showPremiumFeature(premiumUser) && (
+                        <MountedFormField
+                          label={
+                            <span>
+                              Allowed Pass Through Routes{" "}
+                              <SimpleTooltip content="Allow this key to use specific pass through routes">
+                                <a
+                                  href="https://docs.litellm.ai/docs/proxy/pass_through"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={(e) => e.stopPropagation()} // Prevent accordion from collapsing when clicking link
+                                >
+                                  <Info className="ml-1 inline size-3.5 align-text-bottom" />
+                                </a>
+                              </SimpleTooltip>
+                            </span>
+                          }
+                          name="allowed_passthrough_routes"
+                          className="mt-4"
+                          help={
+                            premiumUser
+                              ? "Select existing pass through routes or enter new ones"
+                              : "Premium feature - Upgrade to set pass through routes by key"
+                          }
+                        >
+                          {(control) => (
+                            <PassThroughRoutesSelector
+                              value={control.value as string[] | undefined}
+                              onChange={control.onChange}
+                              accessToken={accessToken}
+                              placeholder={
+                                !premiumUser
+                                  ? "Premium feature - Upgrade to set pass through routes by key"
+                                  : "Select or enter pass through routes"
+                              }
+                              disabled={!premiumUser}
+                              teamId={selectedCreateKeyTeam ? selectedCreateKeyTeam.team_id : null}
+                            />
+                          )}
+                        </MountedFormField>
+                      )}
                       <MountedFormField
                         label={
                           <span>
@@ -1701,7 +1708,7 @@ const CreateKey: React.FC<CreateKeyProps> = ({ team, teams, data, addKey, autoOp
                         </CollapsibleContent>
                       </Collapsible>
 
-                      {premiumUser ? (
+                      {showPremiumFeature(premiumUser) ? (
                         <Collapsible className="mt-4 mb-4 overflow-hidden rounded-lg border">
                           <CollapsibleTrigger className={SECTION_HEADER_CLASS}>
                             <b>Logging Settings</b>
@@ -1719,43 +1726,7 @@ const CreateKey: React.FC<CreateKeyProps> = ({ team, teams, data, addKey, autoOp
                             </div>
                           </CollapsibleContent>
                         </Collapsible>
-                      ) : (
-                        <SimpleTooltip
-                          className="w-full"
-                          content={
-                            <span>
-                              Key-level logging settings is an enterprise feature, get in touch -
-                              <a href="https://www.litellm.ai/enterprise" target="_blank">
-                                https://www.litellm.ai/enterprise
-                              </a>
-                            </span>
-                          }
-                          side="top"
-                        >
-                          <div style={{ position: "relative" }}>
-                            <div style={{ opacity: 0.5 }}>
-                              <Collapsible className="mt-4 mb-4 overflow-hidden rounded-lg border">
-                                <CollapsibleTrigger className={SECTION_HEADER_CLASS}>
-                                  <b>Logging Settings</b>
-                                  <ChevronDown className={SECTION_CHEVRON_CLASS} />
-                                </CollapsibleTrigger>
-                                <CollapsibleContent className="px-4 pb-3">
-                                  <div className="mt-4">
-                                    <PremiumLoggingSettings
-                                      value={loggingSettings}
-                                      onChange={setLoggingSettings}
-                                      premiumUser={false}
-                                      disabledCallbacks={disabledCallbacks}
-                                      onDisabledCallbacksChange={setDisabledCallbacks}
-                                    />
-                                  </div>
-                                </CollapsibleContent>
-                              </Collapsible>
-                            </div>
-                            <div style={{ position: "absolute", inset: 0, cursor: "not-allowed" }} />
-                          </div>
-                        </SimpleTooltip>
-                      )}
+                      ) : null}
 
                       <Collapsible
                         key={`router-settings-accordion-${routerSettingsKey}`}

@@ -8,6 +8,7 @@ import { DEFAULT_PAGE_SIZE_OPTIONS } from "@/components/shared/DataTable";
 import { useDeletedTeams } from "@/app/(dashboard)/hooks/teams/useTeams";
 import useAuthorized from "@/app/(dashboard)/hooks/useAuthorized";
 import { DeletedTeamsTable } from "./DeletedTeamsTable/DeletedTeamsTable";
+import { SHOW_ENTERPRISE_UPSELL } from "@/lib/productConfig";
 
 export default function DeletedTeamsPage() {
   const { premiumUser } = useAuthorized();
@@ -19,7 +20,7 @@ export default function DeletedTeamsPage() {
 
   return (
     <PageContent>
-      {!premiumUser && (
+      {!premiumUser && SHOW_ENTERPRISE_UPSELL && (
         <Alert className="shrink-0">
           <Info />
           <AlertTitle>Coming soon to Enterprise</AlertTitle>

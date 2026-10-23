@@ -6,6 +6,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { toast } from "@/lib/toast";
 import { serviceHealthCheck, setCallbacksCall } from "./networking";
 import { EmailEventSettings } from "./email_events";
+import { showPremiumFeature } from "@/lib/productConfig";
 
 interface EmailSettingsProps {
   accessToken: string | null;
@@ -111,6 +112,7 @@ const EmailSettings: React.FC<EmailSettingsProps> = ({ accessToken, premiumUser,
               <div key={index} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {Object.entries(alert.variables ?? {}).map(([key, value]) => {
                   const isLocked = !premiumUser && PREMIUM_ONLY_FIELDS.includes(key);
+                  if (isLocked && !showPremiumFeature(premiumUser)) return null;
                   const isSensitive = SENSITIVE_FIELD_PATTERN.test(key);
                   const isVisible = visibleFields[key] || false;
                   return (

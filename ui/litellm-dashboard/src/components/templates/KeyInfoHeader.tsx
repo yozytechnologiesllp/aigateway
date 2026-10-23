@@ -63,6 +63,7 @@ interface KeyInfoHeaderProps {
   isBlocked?: boolean;
   canModifyKey?: boolean;
   backButtonText?: string;
+  showRegenerate?: boolean;
   regenerateDisabled?: boolean;
   regenerateTooltip?: string;
 }
@@ -170,6 +171,7 @@ export function KeyInfoHeader({
   isBlocked = false,
   canModifyKey = true,
   backButtonText = "Back to Keys",
+  showRegenerate = true,
   regenerateDisabled = false,
   regenerateTooltip,
 }: KeyInfoHeaderProps) {
@@ -221,16 +223,17 @@ export function KeyInfoHeader({
         </div>
         {canModifyKey && (
           <div className="flex items-center gap-2">
-            {regenerateTooltip ? (
-              <TooltipProvider delay={300}>
-                <Tooltip>
-                  <TooltipTrigger render={regenerateButton} />
-                  <TooltipContent>{regenerateTooltip}</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ) : (
-              regenerateButton
-            )}
+            {showRegenerate &&
+              (regenerateTooltip ? (
+                <TooltipProvider delay={300}>
+                  <Tooltip>
+                    <TooltipTrigger render={regenerateButton} />
+                    <TooltipContent>{regenerateTooltip}</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ) : (
+                regenerateButton
+              ))}
             <DropdownMenu>
               <DropdownMenuTrigger render={<Button variant="outline" size="icon" aria-label="More key actions" />}>
                 <MoreVertical className="size-3.5" />

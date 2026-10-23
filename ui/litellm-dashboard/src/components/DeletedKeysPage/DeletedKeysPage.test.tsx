@@ -5,6 +5,15 @@ import { renderWithProviders } from "../../../tests/test-utils";
 import DeletedKeysPage from "./DeletedKeysPage";
 import { useDeletedKeys, DeletedKeyResponse } from "@/app/(dashboard)/hooks/keys/useKeys";
 
+const productUpsell = vi.hoisted(() => ({ show: true }));
+vi.mock("@/lib/productConfig", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/productConfig")>()),
+  get SHOW_ENTERPRISE_UPSELL() {
+    return productUpsell.show;
+  },
+  showPremiumFeature: (premiumUser: boolean | null | undefined) => premiumUser === true || productUpsell.show,
+}));
+
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
 vi.mock("@/app/(dashboard)/hooks/keys/useKeys", () => ({
@@ -93,6 +102,17 @@ it("should render DeletedKeysPage component", () => {
   renderWithProviders(<DeletedKeysPage />);
 
   expect(screen.getByText("Test Key Alias")).toBeInTheDocument();
+});
+
+it("hides the enterprise notice for a non-premium user when upsells are off", () => {
+  productUpsell.show = false;
+  try {
+    renderWithProviders(<DeletedKeysPage />);
+
+    expect(screen.queryByText("Coming soon to Enterprise")).not.toBeInTheDocument();
+  } finally {
+    productUpsell.show = true;
+  }
 });
 
 it("should show the enterprise notice for a non-premium user", () => {

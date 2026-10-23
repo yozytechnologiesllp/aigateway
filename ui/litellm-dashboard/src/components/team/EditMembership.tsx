@@ -26,6 +26,7 @@ import {
   type MemberFormValues,
 } from "./memberFormValues";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { showPremiumFeature } from "@/lib/productConfig";
 
 dayjs.extend(utc);
 
@@ -276,7 +277,9 @@ const MemberModal = <T extends BaseMember>({
               )}
             </FormField>
 
-            {config.additionalFields?.map((field) => renderField(field, field.name))}
+            {config.additionalFields
+              ?.filter((field) => field.type !== "model-max-budget" || showPremiumFeature(field.premiumUser))
+              .map((field) => renderField(field, field.name))}
           </FieldGroup>
 
           <div className="mt-6 text-right">

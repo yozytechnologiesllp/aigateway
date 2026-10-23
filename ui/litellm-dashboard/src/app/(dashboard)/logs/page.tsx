@@ -9,6 +9,7 @@ import AuditLogsPanel from "@/components/logs/audit/AuditLogsPanel";
 import RequestLogsPanel from "@/components/logs/request/RequestLogsPanel";
 import { Page, PageTabs, PageTabsList, PageTabsTrigger, PageTabsContent } from "@/components/shared/Page";
 import { UiLoadingSpinner } from "@/components/ui/ui-loading-spinner";
+import { showPremiumFeature } from "@/lib/productConfig";
 
 type LogsTab = "request logs" | "audit logs" | "deleted keys" | "deleted teams";
 
@@ -34,7 +35,9 @@ export default function LogsPage() {
       <PageTabs value={activeTab} onValueChange={(value: LogsTab) => setActiveTab(value)}>
         <PageTabsList>
           <PageTabsTrigger value="request logs">Request Logs</PageTabsTrigger>
-          {canViewAuditLogs && <PageTabsTrigger value="audit logs">Audit Logs</PageTabsTrigger>}
+          {canViewAuditLogs && showPremiumFeature(premiumUser) && (
+            <PageTabsTrigger value="audit logs">Audit Logs</PageTabsTrigger>
+          )}
           <PageTabsTrigger value="deleted keys">Deleted Keys</PageTabsTrigger>
           {canViewDeletedTeams && <PageTabsTrigger value="deleted teams">Deleted Teams</PageTabsTrigger>}
         </PageTabsList>
@@ -48,7 +51,7 @@ export default function LogsPage() {
             isActive={activeTab === "request logs"}
           />
         </PageTabsContent>
-        {canViewAuditLogs && (
+        {canViewAuditLogs && showPremiumFeature(premiumUser) && (
           <PageTabsContent value="audit logs" keepMounted>
             <AuditLogsPanel
               accessToken={accessToken}

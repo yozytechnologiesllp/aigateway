@@ -26,6 +26,8 @@ import {
   userCreateCall,
 } from "./networking";
 import OnboardingModal, { InvitationLink } from "./onboarding_link";
+import useAuthorized from "@/app/(dashboard)/hooks/useAuthorized";
+import { showPremiumFeature } from "@/lib/productConfig";
 
 // Helper function to generate UUID compatible across all environments
 const generateUUID = (): string => {
@@ -166,6 +168,7 @@ export const CreateUserButton: React.FC<CreateuserProps> = ({
   const [invitationLinkData, setInvitationLinkData] = useState<InvitationLink | null>(null);
   const [baseUrl, setBaseUrl] = useState<string | null>(null);
   const { data: organizations = [] } = useOrganizations();
+  const { premiumUser } = useAuthorized();
   const organizationOptions = organizations.map((org) => ({
     label: `${org.organization_alias} (${org.organization_id})`,
     value: org.organization_id ?? "",
@@ -349,41 +352,43 @@ export const CreateUserButton: React.FC<CreateuserProps> = ({
                 )}
                 {teamField}
 
-                <FormField
-                  control={form.control}
-                  name="organization_ids"
-                  label="Organization"
-                  description="The user will be added to the selected organization(s)."
-                >
-                  {({ id, value, onChange }) => (
-                    <Select
-                      multiple
-                      items={organizationOptions}
-                      value={value ?? []}
-                      onValueChange={(selected: string[]) => onChange(selected.length === 0 ? undefined : selected)}
-                    >
-                      <SelectTrigger id={id} className="w-full">
-                        <SelectValue placeholder="Select Organization">
-                          {(selected: string[]) =>
-                            selected.length === 0
-                              ? "Select Organization"
-                              : organizationOptions
-                                  .filter((option) => selected.includes(option.value))
-                                  .map((option) => option.label)
-                                  .join(", ")
-                          }
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {organizationOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                </FormField>
+                {showPremiumFeature(premiumUser) && (
+                  <FormField
+                    control={form.control}
+                    name="organization_ids"
+                    label="Organization"
+                    description="The user will be added to the selected organization(s)."
+                  >
+                    {({ id, value, onChange }) => (
+                      <Select
+                        multiple
+                        items={organizationOptions}
+                        value={value ?? []}
+                        onValueChange={(selected: string[]) => onChange(selected.length === 0 ? undefined : selected)}
+                      >
+                        <SelectTrigger id={id} className="w-full">
+                          <SelectValue placeholder="Select Organization">
+                            {(selected: string[]) =>
+                              selected.length === 0
+                                ? "Select Organization"
+                                : organizationOptions
+                                    .filter((option) => selected.includes(option.value))
+                                    .map((option) => option.label)
+                                    .join(", ")
+                            }
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {organizationOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </FormField>
+                )}
 
                 {metadataField}
                 {sendInviteEmailField}

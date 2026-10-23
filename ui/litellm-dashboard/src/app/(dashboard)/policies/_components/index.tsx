@@ -33,6 +33,7 @@ import {
 import { Policy, PolicyAttachment } from "@/components/policies/types";
 import { Guardrail } from "@/components/guardrails/types";
 import DeleteResourceModal from "@/components/common_components/DeleteResourceModal";
+import { SHOW_ENTERPRISE_UPSELL } from "@/lib/productConfig";
 
 interface DismissibleAlertProps {
   title: string;
@@ -571,9 +572,11 @@ const PoliciesPanel: React.FC<PoliciesPanelProps> = ({ accessToken, userRole }) 
             </a>
           </DismissibleAlert>
 
-          <DismissibleAlert title="Enterprise Feature Notice" icon={<TriangleAlert />}>
-            Parts of policy attachments will be on LiteLLM Enterprise in subsequent releases.
-          </DismissibleAlert>
+          {SHOW_ENTERPRISE_UPSELL && (
+            <DismissibleAlert title="Enterprise Feature Notice" icon={<TriangleAlert />}>
+              Parts of policy attachments will be on LiteLLM Enterprise in subsequent releases.
+            </DismissibleAlert>
+          )}
 
           <div className="mb-4 flex items-center justify-between">
             <Button

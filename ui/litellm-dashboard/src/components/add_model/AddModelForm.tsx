@@ -47,6 +47,7 @@ import { toast } from "@/lib/toast";
 import { isProxyAdminRole } from "@/utils/roles";
 import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { showPremiumFeature } from "@/lib/productConfig";
 
 interface AddModelFormProps {
   form: UseFormReturn<MountedFormValues>; // For the Add Model tab
@@ -394,7 +395,7 @@ const AddModelForm: React.FC<AddModelFormProps> = ({
                         <div className="grow border-t border-border"></div>
                       </div>
                       {/* Team-only Model Switch - Only show for proxy admins, not team admins */}
-                      {(isAdmin || !isTeamAdmin) && (
+                      {(isAdmin || !isTeamAdmin) && showPremiumFeature(premiumUser) && (
                         <Field className="mb-4">
                           <FieldLabel>
                             {labelWithHint(

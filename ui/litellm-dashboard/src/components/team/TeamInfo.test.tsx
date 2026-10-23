@@ -16,6 +16,15 @@ import TeamInfoView, {
   type TeamData,
 } from "./TeamInfo";
 
+const productUpsell = vi.hoisted(() => ({ show: true }));
+vi.mock("@/lib/productConfig", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/productConfig")>()),
+  get SHOW_ENTERPRISE_UPSELL() {
+    return productUpsell.show;
+  },
+  showPremiumFeature: (premiumUser: boolean | null | undefined) => premiumUser === true || productUpsell.show,
+}));
+
 const authState = vi.hoisted(() => ({ userRole: "Admin", isViewOnly: false }));
 
 vi.mock("@/app/(dashboard)/hooks/useAuthorized", () => ({

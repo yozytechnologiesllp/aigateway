@@ -4,6 +4,15 @@ import { renderWithProviders, screen, waitFor } from "../../../tests/test-utils"
 import SidebarAccountMenu from "./SidebarAccountMenu";
 import { DEFAULT_BRAND } from "@/lib/brand";
 
+const productUpsell = vi.hoisted(() => ({ show: true }));
+vi.mock("@/lib/productConfig", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/productConfig")>()),
+  get SHOW_ENTERPRISE_UPSELL() {
+    return productUpsell.show;
+  },
+  showPremiumFeature: (premiumUser: boolean | null | undefined) => premiumUser === true || productUpsell.show,
+}));
+
 interface AuthMock {
   userId: string | null;
   userEmail: string | null;
@@ -119,6 +128,21 @@ describe("SidebarAccountMenu", () => {
     expect(screen.getAllByText("test@example.com").length).toBeGreaterThan(0);
     expect(screen.getByText("test-user-id")).toBeInTheDocument();
     expect(screen.getAllByText("Admin").length).toBeGreaterThan(0);
+  });
+
+  it("leaves out the licence tier row for non-premium users when upsells are off", async () => {
+    productUpsell.show = false;
+    try {
+      const user = userEvent.setup();
+      renderWithProviders(<SidebarAccountMenu onLogout={mockOnLogout} />);
+
+      await openMenu(user);
+
+      expect(screen.queryByText("Standard")).not.toBeInTheDocument();
+      expect(screen.queryByText("Tier")).not.toBeInTheDocument();
+    } finally {
+      productUpsell.show = true;
+    }
   });
 
   it("should display Standard tier for non-premium users", async () => {

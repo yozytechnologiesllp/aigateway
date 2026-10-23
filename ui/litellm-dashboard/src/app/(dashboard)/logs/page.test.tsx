@@ -4,6 +4,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import LogsPage from "./page";
 import { renderWithProviders } from "../../../../tests/test-utils";
 
+const productUpsell = vi.hoisted(() => ({ show: true }));
+vi.mock("@/lib/productConfig", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/productConfig")>()),
+  get SHOW_ENTERPRISE_UPSELL() {
+    return productUpsell.show;
+  },
+  showPremiumFeature: (premiumUser: boolean | null | undefined) => premiumUser === true || productUpsell.show,
+}));
+
 const { useAuthorizedMock, useOrganizationsMock } = vi.hoisted(() => ({
   useAuthorizedMock: vi.fn(),
   useOrganizationsMock: vi.fn(),
@@ -63,6 +72,19 @@ describe("LogsPage", () => {
   beforeEach(() => {
     useAuthorizedMock.mockReturnValue({ ...defaultProps, userId: defaultProps.userID });
     useOrganizationsMock.mockReturnValue({ data: [] });
+  });
+
+  it("drops the enterprise Audit Logs tab for an unlicensed proxy when upsells are off", () => {
+    productUpsell.show = false;
+    try {
+      renderAs("Admin");
+
+      expect(screen.queryByRole("tab", { name: "Audit Logs" })).not.toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "Request Logs" })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "Deleted Keys" })).toBeInTheDocument();
+    } finally {
+      productUpsell.show = true;
+    }
   });
 
   it("keeps request and audit logs here while traces live in Lens", () => {

@@ -21,6 +21,7 @@ import {
   GuardrailListItem,
   GuardrailListResponse,
 } from "./helpers";
+import { SHOW_ENTERPRISE_UPSELL } from "@/lib/productConfig";
 
 interface PromptCompressionTabProps {
   accessToken: string | null;
@@ -181,20 +182,22 @@ const PromptCompressionTab: React.FC<PromptCompressionTabProps> = ({ accessToken
                   )}
                 </FormField>
               </FieldGroup>
-              <div className="mt-6 mb-4 rounded-lg border border-warning/20 bg-warning/10 p-3">
-                <p className="text-sm text-warning">
-                  Applying compression to all requests is available to all users. Enabling it selectively per key or
-                  team is a LiteLLM Enterprise feature. Get a trial key{" "}
-                  <a
-                    href="https://www.litellm.ai/#pricing"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline"
-                  >
-                    here
-                  </a>
-                </p>
-              </div>
+              {SHOW_ENTERPRISE_UPSELL && (
+                <div className="mt-6 mb-4 rounded-lg border border-warning/20 bg-warning/10 p-3">
+                  <p className="text-sm text-warning">
+                    Applying compression to all requests is available to all users. Enabling it selectively per key or
+                    team is a LiteLLM Enterprise feature. Get a trial key{" "}
+                    <a
+                      href="https://www.litellm.ai/#pricing"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline"
+                    >
+                      here
+                    </a>
+                  </p>
+                </div>
+              )}
               <div className="flex justify-end">
                 <Button type="submit" disabled={isSaving}>
                   {isSaving && <UiLoadingSpinner className="size-4" />}

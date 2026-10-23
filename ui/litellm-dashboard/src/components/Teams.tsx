@@ -69,6 +69,7 @@ import DeleteResourceModal from "./common_components/DeleteResourceModal";
 import { teamCreateCall } from "./networking";
 import { normalizeTeamModelSelection } from "./team/teamModelAccess";
 import { ModelSelect } from "./ModelSelect/ModelSelect";
+import { showPremiumFeature } from "@/lib/productConfig";
 
 const SUPPRESSED_BY_DESCRIPTION = "";
 
@@ -744,42 +745,44 @@ const Teams: React.FC<TeamProps> = ({ accessToken, userID, userRole, isViewOnly 
 
                     return (
                       <>
-                        <FormField
-                          control={form.control}
-                          name="organization_id"
-                          className="mt-8"
-                          label={labelWithDocsHint(
-                            "Organization",
-                            "Organizations can have multiple teams. Learn more about the user management hierarchy",
-                            "https://docs.litellm.ai/docs/proxy/user_management_heirarchy",
-                          )}
-                          description={
-                            isOrgAdmin && isSingleOrg
-                              ? "You can only create teams within this organization"
-                              : isOrgAdmin
-                                ? "required"
-                                : undefined
-                          }
-                        >
-                          {({ id, value, onChange }) => (
-                            <SearchSelect
-                              inputId={id}
-                              value={value ?? ""}
-                              options={adminOrgs.map((org) => ({
-                                value: org.organization_id ?? "",
-                                label: org.organization_alias ?? "",
-                                sublabel: org.organization_id ?? "",
-                              }))}
-                              disabled={isOrgAdmin && soleOrganizationId !== null && value === soleOrganizationId}
-                              allowClear={!isOrgAdmin}
-                              placeholder={
-                                hasNoOrgs ? "No organizations available" : "Search or select an Organization"
-                              }
-                              emptyText="No organizations available"
-                              onValueChange={(next) => selectCreateTeamOrganization(next, value ?? null, onChange)}
-                            />
-                          )}
-                        </FormField>
+                        {showPremiumFeature(premiumUser) && (
+                          <FormField
+                            control={form.control}
+                            name="organization_id"
+                            className="mt-8"
+                            label={labelWithDocsHint(
+                              "Organization",
+                              "Organizations can have multiple teams. Learn more about the user management hierarchy",
+                              "https://docs.litellm.ai/docs/proxy/user_management_heirarchy",
+                            )}
+                            description={
+                              isOrgAdmin && isSingleOrg
+                                ? "You can only create teams within this organization"
+                                : isOrgAdmin
+                                  ? "required"
+                                  : undefined
+                            }
+                          >
+                            {({ id, value, onChange }) => (
+                              <SearchSelect
+                                inputId={id}
+                                value={value ?? ""}
+                                options={adminOrgs.map((org) => ({
+                                  value: org.organization_id ?? "",
+                                  label: org.organization_alias ?? "",
+                                  sublabel: org.organization_id ?? "",
+                                }))}
+                                disabled={isOrgAdmin && soleOrganizationId !== null && value === soleOrganizationId}
+                                allowClear={!isOrgAdmin}
+                                placeholder={
+                                  hasNoOrgs ? "No organizations available" : "Search or select an Organization"
+                                }
+                                emptyText="No organizations available"
+                                onValueChange={(next) => selectCreateTeamOrganization(next, value ?? null, onChange)}
+                              />
+                            )}
+                          </FormField>
+                        )}
 
                         {isOrgAdmin && !isSingleOrg && adminOrgs.length > 1 && (
                           <div className="mb-8 rounded-md border border-info/20 bg-info/10 p-4">
@@ -962,27 +965,29 @@ const Teams: React.FC<TeamProps> = ({ accessToken, userID, userRole, isViewOnly 
                             <NumericalInput {...field} ref={ref} value={value ?? ""} step={1} width={400} />
                           )}
                         </FormField>
-                        <FormField
-                          control={form.control}
-                          name="secret_manager_settings"
-                          label="Secret Manager Settings"
-                          description={
-                            premiumUser
-                              ? "Enter secret manager configuration as a JSON object."
-                              : "Premium feature - Upgrade to manage secret manager settings."
-                          }
-                        >
-                          {({ ref, value, ...field }) => (
-                            <Textarea
-                              {...field}
-                              ref={ref}
-                              value={value ?? ""}
-                              rows={4}
-                              placeholder='{"namespace": "admin", "mount": "secret", "path_prefix": "litellm"}'
-                              disabled={!premiumUser}
-                            />
-                          )}
-                        </FormField>
+                        {showPremiumFeature(premiumUser) && (
+                          <FormField
+                            control={form.control}
+                            name="secret_manager_settings"
+                            label="Secret Manager Settings"
+                            description={
+                              premiumUser
+                                ? "Enter secret manager configuration as a JSON object."
+                                : "Premium feature - Upgrade to manage secret manager settings."
+                            }
+                          >
+                            {({ ref, value, ...field }) => (
+                              <Textarea
+                                {...field}
+                                ref={ref}
+                                value={value ?? ""}
+                                rows={4}
+                                placeholder='{"namespace": "admin", "mount": "secret", "path_prefix": "litellm"}'
+                                disabled={!premiumUser}
+                              />
+                            )}
+                          </FormField>
+                        )}
                         <FormField
                           control={form.control}
                           name="guardrails"
@@ -1004,7 +1009,7 @@ const Teams: React.FC<TeamProps> = ({ accessToken, userID, userRole, isViewOnly 
                             />
                           )}
                         </FormField>
-                        {isProxyAdminRole(userRole || "") && (
+                        {isProxyAdminRole(userRole || "") && showPremiumFeature(premiumUser) && (
                           <FormField
                             control={form.control}
                             name="disable_global_guardrails"
@@ -1104,34 +1109,36 @@ const Teams: React.FC<TeamProps> = ({ accessToken, userID, userRole, isViewOnly 
                             />
                           )}
                         </FormField>
-                        <FormField
-                          control={form.control}
-                          name="allowed_passthrough_routes"
-                          className="mt-8"
-                          label={
-                            !premiumUser
-                              ? labelWithHint(
-                                  "Allowed Pass Through Routes",
-                                  "Premium feature - Upgrade to set allowed pass through routes",
-                                )
-                              : !isProxyAdminRole(userRole || "")
+                        {showPremiumFeature(premiumUser) && (
+                          <FormField
+                            control={form.control}
+                            name="allowed_passthrough_routes"
+                            className="mt-8"
+                            label={
+                              !premiumUser
                                 ? labelWithHint(
                                     "Allowed Pass Through Routes",
-                                    "Only proxy admins can set allowed pass through routes",
+                                    "Premium feature - Upgrade to set allowed pass through routes",
                                   )
-                                : "Allowed Pass Through Routes"
-                          }
-                        >
-                          {({ value, onChange }) => (
-                            <PassThroughRoutesSelector
-                              value={value}
-                              onChange={onChange}
-                              accessToken={accessToken || ""}
-                              placeholder="Select pass through routes (optional)"
-                              disabled={!premiumUser || !isProxyAdminRole(userRole || "")}
-                            />
-                          )}
-                        </FormField>
+                                : !isProxyAdminRole(userRole || "")
+                                  ? labelWithHint(
+                                      "Allowed Pass Through Routes",
+                                      "Only proxy admins can set allowed pass through routes",
+                                    )
+                                  : "Allowed Pass Through Routes"
+                            }
+                          >
+                            {({ value, onChange }) => (
+                              <PassThroughRoutesSelector
+                                value={value}
+                                onChange={onChange}
+                                accessToken={accessToken || ""}
+                                placeholder="Select pass through routes (optional)"
+                                disabled={!premiumUser || !isProxyAdminRole(userRole || "")}
+                              />
+                            )}
+                          </FormField>
+                        )}
                       </FieldGroup>
                     </CollapsibleContent>
                   </Collapsible>
@@ -1276,21 +1283,23 @@ const Teams: React.FC<TeamProps> = ({ accessToken, userID, userRole, isViewOnly 
                     </CollapsibleContent>
                   </Collapsible>
 
-                  <Collapsible className="mt-8 mb-8 overflow-hidden rounded-lg border">
-                    <CollapsibleTrigger className="group/section flex w-full items-center justify-between px-4 py-3 text-left">
-                      <b>Logging Settings</b>
-                      <ChevronDown className="size-5 shrink-0 text-muted-foreground transition-transform group-data-[panel-open]/section:rotate-180" />
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="px-4 pb-3">
-                      <div className="mt-4">
-                        <PremiumLoggingSettings
-                          value={loggingSettings}
-                          onChange={setLoggingSettings}
-                          premiumUser={premiumUser}
-                        />
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
+                  {showPremiumFeature(premiumUser) && (
+                    <Collapsible className="mt-8 mb-8 overflow-hidden rounded-lg border">
+                      <CollapsibleTrigger className="group/section flex w-full items-center justify-between px-4 py-3 text-left">
+                        <b>Logging Settings</b>
+                        <ChevronDown className="size-5 shrink-0 text-muted-foreground transition-transform group-data-[panel-open]/section:rotate-180" />
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="px-4 pb-3">
+                        <div className="mt-4">
+                          <PremiumLoggingSettings
+                            value={loggingSettings}
+                            onChange={setLoggingSettings}
+                            premiumUser={premiumUser}
+                          />
+                        </div>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  )}
 
                   <Collapsible
                     key={`router-settings-accordion-${routerSettingsKey}`}

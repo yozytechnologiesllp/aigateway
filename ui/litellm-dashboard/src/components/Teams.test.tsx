@@ -18,6 +18,15 @@ import {
 import Teams from "./Teams";
 import { chooseSelectOption } from "../../tests/test-utils";
 
+const productUpsell = vi.hoisted(() => ({ show: true }));
+vi.mock("@/lib/productConfig", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/productConfig")>()),
+  get SHOW_ENTERPRISE_UPSELL() {
+    return productUpsell.show;
+  },
+  showPremiumFeature: (premiumUser: boolean | null | undefined) => premiumUser === true || productUpsell.show,
+}));
+
 vi.mock("./mcp_server_management/MCPServerSelector", () => ({
   default: ({
     onChange,
