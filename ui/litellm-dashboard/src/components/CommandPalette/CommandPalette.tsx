@@ -13,6 +13,7 @@ import { routeSegmentForPathname, uiHref } from "@/utils/uiHref";
 import type { KeyResponse } from "@/components/key_team_helpers/key_list";
 import { CommandPaletteResultRow, type CommandPaletteRowData } from "./CommandPaletteResultRow";
 import { useVisibleMenuGroups } from "./useVisibleMenuGroups";
+import { useBrand } from "@/hooks/useBrand";
 import { flattenNavItems, matchNavItems, paletteScopeForRoute, type PaletteNavItem, type PaletteScope } from "./utils";
 
 type PaletteEntry = CommandPaletteRowData &
@@ -40,6 +41,7 @@ export function CommandPalette({ open, setOpen }: { open: boolean; setOpen: (ope
 
 function CommandPaletteDialog({ setOpen }: { setOpen: (open: boolean) => void }) {
   const pathname = usePathname();
+  const { productName } = useBrand();
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [activeSelection, setActiveSelection] = useState<{
@@ -298,7 +300,7 @@ function CommandPaletteDialog({ setOpen }: { setOpen: (open: boolean) => void })
         </div>
         <div className="flex h-10 items-center justify-between border-t border-border bg-muted/30 px-3 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
-            <span className="font-medium text-foreground">LiteLLM</span>
+            <span className="font-medium text-foreground">{productName}</span>
             <span>{scope === "keys" ? "Virtual Keys" : "All pages"}</span>
           </div>
           <div className="flex items-center gap-3">
