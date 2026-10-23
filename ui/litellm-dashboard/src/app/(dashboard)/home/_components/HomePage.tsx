@@ -2,7 +2,7 @@
 
 import { ArrowRight, Plus, Rocket, Sparkles } from "lucide-react";
 import useAuthorized from "@/app/(dashboard)/hooks/useAuthorized";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Page } from "@/components/shared/Page";
@@ -34,10 +34,10 @@ export default function HomePage() {
         <PageHeaderTitle>Home</PageHeaderTitle>
         {!isViewOnly && (
           <PageHeaderControls>
-            <Button render={<a href={uiHref("api-keys?create=true")} />}>
+            <a href={uiHref("api-keys?create=true")} className={buttonVariants()}>
               <Plus />
               Create New Virtual Key
-            </Button>
+            </a>
           </PageHeaderControls>
         )}
       </PageHeader>

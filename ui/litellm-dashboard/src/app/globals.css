@@ -689,3 +689,13 @@
     -webkit-text-fill-color: currentColor;
   }
 }
+
+:root[data-hide-upstream-links]
+  :is(
+    a[href*="litellm.ai"],
+    a[href*="litellm.vercel.app"],
+    a[href*="github.com/BerriAI"],
+    a[href*="calendly.com/tin-berri"]
+  ) {
+  display: none !important;
+}

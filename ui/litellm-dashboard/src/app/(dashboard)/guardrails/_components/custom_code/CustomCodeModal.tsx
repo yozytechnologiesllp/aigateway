@@ -1,3 +1,4 @@
+import { SHOW_UPSTREAM_LINKS } from "@/lib/productConfig";
 import React, { useState, useRef, useEffect } from "react";
 import { CheckCircle2, ChevronRight, Code, ExternalLink, PlayCircle, Save, Users, XCircle } from "lucide-react";
 import { createGuardrailCall, updateGuardrailCall, testCustomCodeGuardrail } from "@/components/networking";
@@ -514,16 +515,18 @@ const CustomCodeModal: React.FC<CustomCodeModalProps> = ({ visible, onClose, onS
                     </SelectItem>
                   ))}
                 </SelectGroup>
-                <SelectSeparator />
-                <button
-                  type="button"
-                  onClick={() => window.open("https://models.litellm.ai/guardrails", "_blank")}
-                  className="flex w-full items-center gap-1 rounded-sm px-2 py-1.5 text-xs text-primary hover:bg-accent"
-                >
-                  <Users className="size-3.5" />
-                  <span>Browse Community templates</span>
-                  <ExternalLink className="size-2.5" />
-                </button>
+                {SHOW_UPSTREAM_LINKS && <SelectSeparator />}
+                {SHOW_UPSTREAM_LINKS && (
+                  <button
+                    type="button"
+                    onClick={() => window.open("https://models.litellm.ai/guardrails", "_blank")}
+                    className="flex w-full items-center gap-1 rounded-sm px-2 py-1.5 text-xs text-primary hover:bg-accent"
+                  >
+                    <Users className="size-3.5" />
+                    <span>Browse Community templates</span>
+                    <ExternalLink className="size-2.5" />
+                  </button>
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -710,23 +713,28 @@ const CustomCodeModal: React.FC<CustomCodeModalProps> = ({ visible, onClose, onS
               </CollapsibleContent>
             </Collapsible>
             {/* Contribution CTA Banner */}
-            <div className="mt-3 flex shrink-0 items-center justify-between rounded-lg border border-info/20 bg-linear-to-r from-blue-50 to-indigo-50 p-4 dark:from-blue-950 dark:to-indigo-950">
-              <div className="flex items-center gap-3">
-                <div className="rounded-full bg-info/15 p-2">
-                  <Users className="size-5 text-info" />
-                </div>
-                <div>
-                  <div className="text-sm font-medium">Built a useful guardrail?</div>
-                  <div className="text-xs text-muted-foreground">
-                    Share it with the community and help others build faster
+            {SHOW_UPSTREAM_LINKS && (
+              <div className="mt-3 flex shrink-0 items-center justify-between rounded-lg border border-info/20 bg-linear-to-r from-blue-50 to-indigo-50 p-4 dark:from-blue-950 dark:to-indigo-950">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-full bg-info/15 p-2">
+                    <Users className="size-5 text-info" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium">Built a useful guardrail?</div>
+                    <div className="text-xs text-muted-foreground">
+                      Share it with the community and help others build faster
+                    </div>
                   </div>
                 </div>
+                <Button
+                  size="sm"
+                  onClick={() => window.open("https://github.com/BerriAI/litellm-guardrails", "_blank")}
+                >
+                  <ExternalLink />
+                  Contribute Template
+                </Button>
               </div>
-              <Button size="sm" onClick={() => window.open("https://github.com/BerriAI/litellm-guardrails", "_blank")}>
-                <ExternalLink />
-                Contribute Template
-              </Button>
-            </div>
+            )}
           </div>
 
           {/* Primitives Panel */}

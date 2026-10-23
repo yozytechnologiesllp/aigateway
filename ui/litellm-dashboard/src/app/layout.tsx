@@ -11,6 +11,7 @@ import HotkeysProvider from "@/contexts/HotkeysProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { BrandHead } from "@/components/BrandHead";
 import { DEFAULT_BRAND } from "@/lib/brand";
+import { SHOW_UPSTREAM_LINKS } from "@/lib/productConfig";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,7 +29,7 @@ export default function RootLayout({
   return (
     // next-themes stamps the theme class on <html> before paint, which the exported markup
     // cannot predict; suppressHydrationWarning confines that mismatch to this element.
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-hide-upstream-links={SHOW_UPSTREAM_LINKS ? undefined : ""} suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <NuqsAdapter>

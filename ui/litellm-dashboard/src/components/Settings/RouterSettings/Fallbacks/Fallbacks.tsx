@@ -17,6 +17,7 @@ import {
 } from "../../../router_settings/ConfigOwned";
 import { isProxyAdminRole } from "@/utils/roles";
 import AddFallbacks from "./AddFallbacks";
+import { SHOW_UPSTREAM_LINKS } from "@/lib/productConfig";
 import EditFallbacks from "./EditFallbacks";
 
 type FallbackEntry = { [modelName: string]: string[] };
@@ -111,14 +112,20 @@ async function testFallbackModelResponse(selectedModel: string, accessToken: str
     toast.success(
       <span>
         Test model=<strong>{selectedModel}</strong>, received model=
-        <strong>{response.model}</strong>. See{" "}
-        <a
-          href="#"
-          onClick={() => window.open("https://docs.litellm.ai/docs/proxy/reliability", "_blank")}
-          style={{ textDecoration: "underline", color: "blue" }}
-        >
-          curl
-        </a>
+        <strong>{response.model}</strong>.
+        {SHOW_UPSTREAM_LINKS && (
+          <>
+            {" "}
+            See{" "}
+            <a
+              href="#"
+              onClick={() => window.open("https://docs.litellm.ai/docs/proxy/reliability", "_blank")}
+              style={{ textDecoration: "underline", color: "blue" }}
+            >
+              curl
+            </a>
+          </>
+        )}
       </span>,
     );
   } catch (error) {
