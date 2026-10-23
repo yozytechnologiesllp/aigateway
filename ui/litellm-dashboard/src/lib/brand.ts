@@ -3,6 +3,7 @@ import { uiHref } from "@/utils/uiHref";
 
 export interface Brand {
   productName: string;
+  version: string;
   logoUrl: string | null;
   logoUrlDark: string | null;
   faviconUrl: string | null;
@@ -12,6 +13,7 @@ export interface Brand {
 
 export const DEFAULT_BRAND: Brand = {
   productName: "AI Gateway",
+  version: "1.0",
   logoUrl: null,
   logoUrlDark: null,
   faviconUrl: null,
@@ -29,6 +31,7 @@ const optionalText = z
 const brandFileSchema = z
   .object({
     productName: optionalText,
+    version: optionalText,
     logoUrl: optionalText,
     logoUrlDark: optionalText,
     faviconUrl: optionalText,
@@ -56,6 +59,7 @@ export const resolveBrand = (brandFile: unknown, themeSettings: unknown): Brand 
   const theme = themeSettingsSchema.parse(themeSettings ?? {}).values;
   return {
     productName: file.productName ?? DEFAULT_BRAND.productName,
+    version: file.version ?? DEFAULT_BRAND.version,
     logoUrl: theme.logo_url ?? resolveAsset(file.logoUrl),
     logoUrlDark: theme.logo_url_dark ?? resolveAsset(file.logoUrlDark),
     faviconUrl: theme.favicon_url ?? resolveAsset(file.faviconUrl),

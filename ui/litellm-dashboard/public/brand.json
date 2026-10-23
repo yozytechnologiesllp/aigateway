@@ -1,5 +1,6 @@
 {
   "productName": "AI Gateway",
+  "version": "1.0",
   "logoUrl": "brand/logo.svg",
   "logoUrlDark": "brand/logo-dark.svg",
   "faviconUrl": "brand/favicon.svg",

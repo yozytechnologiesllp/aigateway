@@ -32,6 +32,14 @@ vi.mock("@/components/Navbar/NotificationsBell/NotificationsBell", () => ({ Noti
 vi.mock("@/components/Navbar/WorkerDropdown/WorkerDropdown", () => ({ default: () => null }));
 vi.mock("@/components/liteadmin/LiteAdmin", () => ({ default: () => <button>LiteAdmin</button> }));
 
+const productLinks = vi.hoisted(() => ({ show: true }));
+vi.mock("@/lib/productConfig", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/productConfig")>()),
+  get SHOW_UPSTREAM_LINKS() {
+    return productLinks.show;
+  },
+}));
+
 const renderDashboardHeader = () =>
   render(
     <CommandPaletteProvider>
@@ -49,7 +57,16 @@ describe("DashboardHeader breadcrumb", () => {
     state.enableChatUI = false;
     state.pathname = "/ui/logs";
     state.isDesktop = false;
+    productLinks.show = true;
     localStorage.clear();
+  });
+
+  it("drops the upstream Docs link when the product turns upstream links off", () => {
+    productLinks.show = false;
+    renderDashboardHeader();
+
+    expect(screen.queryByRole("link", { name: "Docs" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "LiteAdmin" })).toBeInTheDocument();
   });
 
   it("titles the breadcrumb from the current route, not from a sidebar page id", () => {

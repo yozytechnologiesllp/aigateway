@@ -10,7 +10,10 @@ const HIDDEN_ROUTES: ReadonlySet<string> = new Set([
   "prompts",
   "transform-request",
   "tag-management",
+  "learning-resources",
 ]);
+
+export const SHOW_UPSTREAM_LINKS = false;
 
 const HIDDEN_TABS: Readonly<Record<string, ReadonlySet<string>>> = {
   "models-and-endpoints": new Set(["auto-routers", "access-group-budgets"]),

@@ -1,5 +1,4 @@
 import useAuthorized from "@/app/(dashboard)/hooks/useAuthorized";
-import { useHealthReadinessDetails } from "@/app/(dashboard)/hooks/healthReadiness/useHealthReadinessDetails";
 import { useDisableBlogPosts } from "@/app/(dashboard)/hooks/useDisableBlogPosts";
 import { useDisableBouncingIcon } from "@/app/(dashboard)/hooks/useDisableBouncingIcon";
 import { useDisableLiteAdmin } from "@/app/(dashboard)/hooks/useDisableLiteAdmin";
@@ -91,17 +90,14 @@ const SidebarAccountMenu: React.FC<SidebarAccountMenuProps> = ({ onLogout, colla
     userRoleLabel: userRole,
     isViewOnly,
     premiumUser,
-    accessToken,
     loginMethod,
   } = useAuthorized();
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
-  const { data: healthData } = useHealthReadinessDetails(accessToken);
-  const version = healthData?.litellm_version;
   const disableShowPrompts = useDisableShowPrompts();
   const disableBlogPosts = useDisableBlogPosts();
   const disableBouncingIcon = useDisableBouncingIcon();
-  const { productName } = useBrand();
+  const { productName, version } = useBrand();
   const disableShowNewBadge = useDisableShowNewBadge();
   const [disableLiteAdmin, setDisableLiteAdmin] = useDisableLiteAdmin(userId);
   const canUseLiteAdmin = userId && !isViewOnly && isProxyAdminRole(role);

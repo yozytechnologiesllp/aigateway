@@ -16,6 +16,7 @@ import { useBlogPosts } from "@/app/(dashboard)/hooks/blogPosts/useBlogPosts";
 import { cardProvider, cardSummary, cardTitle, formatPublishedOn, latestLaunches } from "./homeContent";
 import { Logo } from "@/components/molecules/logo/Logo";
 import UpdatesFeed from "./UpdatesFeed";
+import { SHOW_UPSTREAM_LINKS } from "@/lib/productConfig";
 import { HOME_USAGE_DAYS, useHomeUsage } from "./useHomeUsage";
 
 const LEADERBOARD = { metric: "tokens", dimension: "model_groups" } as const;
@@ -62,9 +63,9 @@ export default function HomePage() {
         )}
       </section>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,3fr)_minmax(16rem,1fr)]">
+      <div className={SHOW_UPSTREAM_LINKS ? "grid gap-6 xl:grid-cols-[minmax(0,3fr)_minmax(16rem,1fr)]" : "grid gap-6"}>
         <div className="flex min-w-0 flex-col gap-6">
-          {(blog.isLoading || launches.length > 0) && (
+          {SHOW_UPSTREAM_LINKS && (blog.isLoading || launches.length > 0) && (
             <section aria-labelledby="home-whats-new" data-testid="home-whats-new" className="flex flex-col gap-3">
               <div>
                 <h2 id="home-whats-new" className="flex items-center gap-2 text-lg font-semibold">
@@ -115,7 +116,7 @@ export default function HomePage() {
           </Panel>
         </div>
 
-        <UpdatesFeed className="self-start" />
+        {SHOW_UPSTREAM_LINKS && <UpdatesFeed className="self-start" />}
       </div>
     </Page>
   );

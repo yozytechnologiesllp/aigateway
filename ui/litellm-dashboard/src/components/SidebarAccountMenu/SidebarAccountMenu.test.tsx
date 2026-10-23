@@ -147,23 +147,14 @@ describe("SidebarAccountMenu", () => {
     expect(screen.getByText("Premium")).toBeInTheDocument();
   });
 
-  it("shows the version badge without linking to upstream release notes", async () => {
+  it("shows the product version instead of the upstream engine version, without a release-notes link", async () => {
     const user = userEvent.setup();
     renderWithProviders(<SidebarAccountMenu onLogout={mockOnLogout} />);
 
     await openMenu(user);
 
-    expect(screen.getByText("v1.99.0")).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /v1\.99\.0/ })).not.toBeInTheDocument();
-  });
-
-  it("should not render the version badge when the version is unavailable", async () => {
-    const user = userEvent.setup();
-    mockHealthDataImpl = () => undefined;
-    renderWithProviders(<SidebarAccountMenu onLogout={mockOnLogout} />);
-
-    await openMenu(user);
-
+    expect(screen.getByText(`v${DEFAULT_BRAND.version}`)).toBeInTheDocument();
+    expect(screen.queryByText("v1.99.0")).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /^v/ })).not.toBeInTheDocument();
   });
 

@@ -22,6 +22,7 @@ import { useDisableShowPrompts } from "@/app/(dashboard)/hooks/useDisableShowPro
 import { clearTokenCookies } from "@/utils/cookieUtils";
 import { clearStoredReturnUrl, getLoginUrl } from "@/utils/returnUrlUtils";
 import { usePathname } from "next/navigation";
+import { SHOW_UPSTREAM_LINKS } from "@/lib/productConfig";
 import { useState, type ReactNode } from "react";
 import { useMediaQuery } from "usehooks-ts";
 import { Ellipsis } from "lucide-react";
@@ -46,7 +47,7 @@ export function DashboardHeader({
   if (isDesktop && mobileToolsOpen) setMobileToolsOpen(false);
   const { isControlPlane, selectedWorker } = useWorker();
   const showWorkerSwitch = isControlPlane && selectedWorker !== null;
-  const hideCommunityLinks = useDisableShowPrompts();
+  const hideCommunityLinks = useDisableShowPrompts() || !SHOW_UPSTREAM_LINKS;
 
   const handleWorkerSwitch = (workerId: string) => {
     clearTokenCookies();
@@ -81,8 +82,8 @@ export function DashboardHeader({
           </>
         )}
         <LiteAdmin />
-        <DocsLink />
-        <BlogDropdown />
+        {SHOW_UPSTREAM_LINKS && <DocsLink />}
+        {SHOW_UPSTREAM_LINKS && <BlogDropdown />}
         {!hideCommunityLinks && <CommunityEngagementButtons />}
         <ToolbarSeparator />
         <ThemeToggle />
@@ -104,8 +105,8 @@ export function DashboardHeader({
             <div className="flex flex-wrap items-center gap-2">
               <LiteAdmin />
               <ThemeToggle />
-              <DocsLink />
-              <BlogDropdown />
+              {SHOW_UPSTREAM_LINKS && <DocsLink />}
+              {SHOW_UPSTREAM_LINKS && <BlogDropdown />}
               {!hideCommunityLinks && <CommunityEngagementButtons />}
             </div>
           </PopoverContent>

@@ -18,6 +18,13 @@ const auth = vi.hoisted(() => ({
   premiumUser: true,
   token: "test-token",
 }));
+const productLinks = vi.hoisted(() => ({ show: true }));
+vi.mock("@/lib/productConfig", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/productConfig")>()),
+  get SHOW_UPSTREAM_LINKS() {
+    return productLinks.show;
+  },
+}));
 vi.mock("@/app/(dashboard)/hooks/useAuthorized", () => ({ default: () => auth }));
 
 const network = vi.hoisted(() => ({
@@ -207,6 +214,19 @@ describe("HomePage", () => {
     expect(within(section).getByText("Day 0 Support: Grok 4.7")).toBeInTheDocument();
     expect(within(section).getByText("Day 0 Support: Grok 4.7 description")).toBeInTheDocument();
     expect(within(section).getAllByRole("img")).toHaveLength(1);
+  });
+
+  it("hides What's new and the updates feed when the product turns upstream links off", async () => {
+    productLinks.show = false;
+    try {
+      renderHome();
+
+      expect(await screen.findByTestId("home-leaderboard")).toBeInTheDocument();
+      expect(screen.queryByTestId("home-whats-new")).not.toBeInTheDocument();
+      expect(screen.queryByText(/LiteLLM/)).not.toBeInTheDocument();
+    } finally {
+      productLinks.show = true;
+    }
   });
 
   it("hides What's new when no blog post is tagged day 0 support", async () => {

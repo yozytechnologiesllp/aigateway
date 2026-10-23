@@ -7,6 +7,10 @@ import { CommandPaletteProvider } from "@/components/CommandPalette/CommandPalet
 import { DashboardHeader } from "./DashboardHeader";
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/ui/logs" }));
+vi.mock("@/lib/productConfig", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/productConfig")>()),
+  SHOW_UPSTREAM_LINKS: true,
+}));
 
 beforeEach(() => {
   localStorage.clear();

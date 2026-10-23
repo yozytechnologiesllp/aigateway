@@ -2,7 +2,6 @@ import { canViewProjectsPage, projectReaderRoles } from "@/app/(dashboard)/hooks
 import { useTeams } from "@/app/(dashboard)/hooks/teams/useTeams";
 import useAuthorized from "@/app/(dashboard)/hooks/useAuthorized";
 import useIsOrgAdmin from "@/app/(dashboard)/hooks/useIsOrgAdmin";
-import { useHealthReadinessDetails } from "@/app/(dashboard)/hooks/healthReadiness/useHealthReadinessDetails";
 import { useLogout } from "@/app/(dashboard)/hooks/useLogout";
 import { getProxyBaseUrl } from "@/components/networking";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -563,11 +562,10 @@ const Sidebar_: React.FC<SidebarProps> = ({
   const logoUrl = theme.logoUrl || brand.logoUrl;
   const logoUrlDark = theme.logoUrlDark || brand.logoUrlDark;
   const [erroredDarkLogo, setErroredDarkLogo] = useState<string | null>(null);
-  const { data: healthData } = useHealthReadinessDetails(accessToken);
   const logout = useLogout(accessToken);
 
   const baseUrl = getProxyBaseUrl();
-  const version = healthData?.litellm_version;
+  const version = brand.version;
   const currentRoute = routeForPathname(usePathname());
   const selectedKey = findMenuItemKey(currentRoute);
 
