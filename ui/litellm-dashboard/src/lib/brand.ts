@@ -1,6 +1,4 @@
 import { z } from "zod";
-import { getProxyBaseUrl } from "@/components/networking";
-import { createApiClient } from "@/lib/http/client";
 import { uiHref } from "@/utils/uiHref";
 
 export interface Brand {
@@ -64,15 +62,4 @@ export const resolveBrand = (brandFile: unknown, themeSettings: unknown): Brand 
     docsUrl: file.docsUrl ?? null,
     supportUrl: file.supportUrl ?? null,
   };
-};
-
-const uiOriginClient = createApiClient({ getBaseUrl: () => "" });
-const proxyClient = createApiClient({ getBaseUrl: getProxyBaseUrl });
-
-export const fetchBrand = async (): Promise<Brand> => {
-  const [brandFile, themeSettings] = await Promise.all([
-    uiOriginClient.get<unknown>(uiHref("brand.json")).catch(() => null),
-    proxyClient.get<unknown>("/get/ui_theme_settings").catch(() => null),
-  ]);
-  return resolveBrand(brandFile, themeSettings);
 };
