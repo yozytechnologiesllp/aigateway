@@ -6,6 +6,7 @@ import { chooseSelectOption, renderWithProviders } from "../../../tests/test-uti
 import { Team } from "../key_team_helpers/key_list";
 import { TeamsResponse, useTeamsTable } from "@/app/(dashboard)/hooks/teams/useTeams";
 import { TeamsTable } from "./TeamsTable";
+import useAuthorized from "@/app/(dashboard)/hooks/useAuthorized";
 
 // Resolve debounced values synchronously so an applied filter lands in the useTeamsTable query within the test tick.
 vi.mock("@tanstack/react-pacer/debouncer", async () => {
@@ -114,6 +115,23 @@ it("renders a team row with alias, organization, and spend/budget", async () => 
     expect(screen.getByText("$42.50")).toBeInTheDocument();
     expect(screen.getByText("of $100.00")).toBeInTheDocument();
   });
+});
+
+it("drops the enterprise Organization column and filter for an unlicensed proxy", async () => {
+  const licensed = vi.mocked(useAuthorized)();
+  vi.mocked(useAuthorized).mockReturnValue({ ...licensed, premiumUser: false });
+  try {
+    renderTable();
+
+    expect(await screen.findByText("Acme Team")).toBeInTheDocument();
+    expect(screen.queryByRole("columnheader", { name: "Organization" })).not.toBeInTheDocument();
+    expect(screen.queryByText("Test Organization")).not.toBeInTheDocument();
+    openFilters();
+    expect(await screen.findByText("Team alias")).toBeInTheDocument();
+    expect(screen.queryByText("Select an organization…")).not.toBeInTheDocument();
+  } finally {
+    vi.mocked(useAuthorized).mockReturnValue(licensed);
+  }
 });
 
 it("renders the Resources cell with member, model, and key counts", () => {

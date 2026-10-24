@@ -21,6 +21,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import { Team } from "../key_team_helpers/key_list";
 import { getTeamTableColumns, TEAM_TABLE_HIDDEN_COLUMNS } from "./teamTableColumns";
 import { exportTeamsToCsv } from "./teamsCsvExport";
+import { showPremiumFeature } from "@/lib/productConfig";
 
 interface TeamsTableProps {
   userRole: string | null;
@@ -55,7 +56,7 @@ export function TeamsTable({ userRole, userID, onSelectTeam, onEditTeam, onDelet
   const [searchInput, setSearchInput] = useState("");
   const [isExporting, setIsExporting] = useState(false);
   const [searchQuery] = useDebouncedValue(searchInput, { wait: DEBOUNCE_WAIT_MS });
-  const { accessToken } = useAuthorized();
+  const { accessToken, premiumUser } = useAuthorized();
 
   const getFilterValue = useCallback(
     (columnId: string): string | undefined => {
@@ -119,8 +120,10 @@ export function TeamsTable({ userRole, userID, onSelectTeam, onEditTeam, onDelet
 
   const columns = useMemo(() => {
     const columnDeps = { organizations, userRole, onSelectTeam, onEditTeam, onDeleteTeam };
-    return getTeamTableColumns(columnDeps);
-  }, [organizations, userRole, onSelectTeam, onEditTeam, onDeleteTeam]);
+    return getTeamTableColumns(columnDeps).filter(
+      (column) => column.id !== "organization_alias" || showPremiumFeature(premiumUser),
+    );
+  }, [organizations, userRole, onSelectTeam, onEditTeam, onDeleteTeam, premiumUser]);
 
   const orgOptions = useMemo(
     () =>
@@ -200,15 +203,17 @@ export function TeamsTable({ userRole, userID, onSelectTeam, onEditTeam, onDelet
           >
             {({ get, set }) => (
               <>
-                <DataTableFilterField label="Organization">
-                  <SearchSelect
-                    options={orgOptions}
-                    value={(get("org_id") as string) || undefined}
-                    onValueChange={(value) => set("org_id", value ?? undefined)}
-                    placeholder="Select an organization…"
-                    emptyText="No organizations found"
-                  />
-                </DataTableFilterField>
+                {showPremiumFeature(premiumUser) && (
+                  <DataTableFilterField label="Organization">
+                    <SearchSelect
+                      options={orgOptions}
+                      value={(get("org_id") as string) || undefined}
+                      onValueChange={(value) => set("org_id", value ?? undefined)}
+                      placeholder="Select an organization…"
+                      emptyText="No organizations found"
+                    />
+                  </DataTableFilterField>
+                )}
                 <DataTableFilterField label="Team alias">
                   <Input
                     value={(get("alias") as string) ?? ""}

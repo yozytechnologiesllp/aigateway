@@ -30,6 +30,8 @@ import React, { useCallback, useMemo, useState } from "react";
 import { KeyResponse, Team } from "../key_team_helpers/key_list";
 import KeyInfoView from "../templates/key_info_view";
 import { getKeyTableColumns, KEY_TABLE_HIDDEN_COLUMNS, KEY_TABLE_SORT_FIELDS } from "./keyTableColumns";
+import { showPremiumFeature } from "@/lib/productConfig";
+import useAuthorized from "@/app/(dashboard)/hooks/useAuthorized";
 
 interface VirtualKeysTableProps {
   headerActions?: React.ReactNode;
@@ -162,7 +164,14 @@ export function VirtualKeysTable({ headerActions }: VirtualKeysTableProps) {
     }),
     [allTeams, organizations, teamMemberBudgets, setSelectedKeyId, applyUserBudgetToTeamKeys],
   );
-  const columns = useMemo(() => getKeyTableColumns(columnDeps), [columnDeps]);
+  const { premiumUser } = useAuthorized();
+  const columns = useMemo(
+    () =>
+      getKeyTableColumns(columnDeps).filter(
+        (column) => column.id !== "organization_alias" || showPremiumFeature(premiumUser),
+      ),
+    [columnDeps, premiumUser],
+  );
 
   const selectedKeyFromList = useMemo(
     () => keyList.find((key) => key.token === selectedKeyId),
@@ -304,15 +313,17 @@ export function VirtualKeysTable({ headerActions }: VirtualKeysTableProps) {
                       emptyText="No teams found"
                     />
                   </DataTableFilterField>
-                  <DataTableFilterField label="Organization">
-                    <SearchSelect
-                      options={orgOptions}
-                      value={(get("org_id") as string) || undefined}
-                      onValueChange={(value) => set("org_id", value ?? undefined)}
-                      placeholder="Select an organization…"
-                      emptyText="No organizations found"
-                    />
-                  </DataTableFilterField>
+                  {showPremiumFeature(premiumUser) && (
+                    <DataTableFilterField label="Organization">
+                      <SearchSelect
+                        options={orgOptions}
+                        value={(get("org_id") as string) || undefined}
+                        onValueChange={(value) => set("org_id", value ?? undefined)}
+                        placeholder="Select an organization…"
+                        emptyText="No organizations found"
+                      />
+                    </DataTableFilterField>
+                  )}
                   <DataTableFilterField label="User ID">
                     <Input
                       value={(get("user_id") as string) ?? ""}
